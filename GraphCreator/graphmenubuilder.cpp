@@ -19,7 +19,7 @@ QMenuBar *GraphMenuBuilder::buildMenuBar()
 void GraphMenuBuilder::createMenus()
 {
     QMenu* fileMenu = m_menuBar->addMenu("文件(&F)");
-    fileMenu->addAction("新建(&N)");
+    fileMenu->addAction("新建(&N)",this,&GraphMenuBuilder::onNewGraphTriggered);
     fileMenu->addAction("打开(&O)");
     fileMenu->addAction("退出(&X)");
 
@@ -27,5 +27,13 @@ void GraphMenuBuilder::createMenus()
 
 void GraphMenuBuilder::createGraphActions()
 {
+
+}
+
+void GraphMenuBuilder::onNewGraphTriggered(bool checked ){
+
+    qDebug()<<"onNewGraphTriggered ";
+    m_newGraphWidget = new NewGraphWidget(m_parentWindow);
+    m_newGraphWidget->show();
 
 }

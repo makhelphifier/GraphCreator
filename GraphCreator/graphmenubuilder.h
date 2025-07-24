@@ -4,19 +4,24 @@
 #include <QMenu>
 #include <QAction>
 #include <QMainWindow>
-class GraphMenuBuilder {
+#include "newgraphwidget.h"
+
+class GraphMenuBuilder :public QObject {
+    Q_OBJECT
 public:
     GraphMenuBuilder();
 
     GraphMenuBuilder(QMainWindow* parent = nullptr);
 
     QMenuBar* buildMenuBar();
+public slots:
+    void onNewGraphTriggered(bool checked = false);
 private:
     QMainWindow* m_parentWindow;
     QMenuBar* m_menuBar;
     void createMenus();
     void createGraphActions();
-
+    NewGraphWidget* m_newGraphWidget;
 
 };
 

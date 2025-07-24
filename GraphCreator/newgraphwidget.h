@@ -2,6 +2,10 @@
 #define NEWGRAPHWIDGET_H
 
 #include <QWidget>
+#include <QPushButton>
+#include <QLabel>
+#include <QTreeWidget>
+#include <QListWidget>
 
 class NewGraphWidget : public QWidget
 {
@@ -9,7 +13,18 @@ class NewGraphWidget : public QWidget
 public:
     explicit NewGraphWidget(QWidget *parent = nullptr);
 
+
+private:
+    QPushButton* newButton;
+    QPushButton* cancelButton;
+    QLabel* textLabel;
+    QTreeWidget* graphTree;
+    QListWidget* graphList;
+
+
 signals:
+
+
 };
 
 #endif // NEWGRAPHWIDGET_H

@@ -11,8 +11,9 @@ int main(int argc, char *argv[])
 
     GraphMenuBuilder menuBuilder(&w);
     w.setMenuBar(menuBuilder.buildMenuBar());
-
-
     w.show();
+
+    menuBuilder.onNewGraphTriggered();
+
     return a.exec();
 }
