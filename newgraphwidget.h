@@ -6,6 +6,9 @@
 #include <QLabel>
 #include <QTreeWidget>
 #include <QListWidget>
+#include <QLineEdit>
+
+
 
 class NewGraphWidget : public QWidget
 {
@@ -20,6 +23,9 @@ private:
     QLabel* textLabel;
     QTreeWidget* graphTree;
     QListWidget* graphList;
+    QLineEdit* lineEdit;
+
+    void initTreeWidget();
 
 
 signals:
