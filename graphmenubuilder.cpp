@@ -1,7 +1,13 @@
 #include "graphmenubuilder.h"
 
 #include <QFileDialog>
-
+// #include <QtPrintSupport/QPrintDialog>
+// #include <QtPrintSupport/QPrinter>
+// #include <QtPrintSupport/QPrintPreviewDialog>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QPrintPreviewDialog>
+#include <QPainter> // 打印时通常也需要 QPainter
 GraphMenuBuilder::GraphMenuBuilder() {}
 
 GraphMenuBuilder::GraphMenuBuilder(QMainWindow *parent)
@@ -9,6 +15,7 @@ GraphMenuBuilder::GraphMenuBuilder(QMainWindow *parent)
 
     m_menuBar = new QMenuBar();
     m_parentWindow = parent;
+    m_currentScene = new QGraphicsScene();
     createMenus();
     createGraphActions();
 }
@@ -27,16 +34,30 @@ void GraphMenuBuilder::createMenus()
     fileMenu->addAction("导入(&I)",this,&GraphMenuBuilder::onImportGraphTriggered);
     fileMenu->addAction("导出(&E)",this,&GraphMenuBuilder::onExportGraphTriggered);
     fileMenu->addAction("图管理(&M)",this,&GraphMenuBuilder::onManagerGraphTriggered);
+    fileMenu->addAction("打印(&P)",this,&GraphMenuBuilder::onPrintGraphTriggered);
 
     fileMenu->addAction("退出(&X)",m_parentWindow,&QMainWindow::close);
 
 }
+void GraphMenuBuilder::onPrintGraphTriggered(bool checked ){
 
+    QPrinter printer(QPrinter::HighResolution);
+    QPrintPreviewDialog previewDialog(&printer,m_parentWindow);
+
+    connect(&previewDialog,&QPrintPreviewDialog::paintRequested,this,&GraphMenuBuilder::printGraph);
+    previewDialog.exec();
+
+
+}
+
+void GraphMenuBuilder::printGraph(){
+
+}
 void GraphMenuBuilder::onExportGraphTriggered(bool checked ){
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"IMPORT");
 
     qDebug()<<"onExportGraphTriggered ";
-    QString filePath = QFileDialog::getSaveFileName(m_parentWindow,"导出图","","Svg 文件(*.svg);;Xml 文件(*.xml)");
+    QString filePath = QFileDialog::getSaveFileName(m_parentWindow,"导出图","","Web展示文件(*.nut);;Svg 文件(*.svg);;Xml 文件(*.xml)");
     QFile file(filePath);
     if(file.open(QIODevice::WriteOnly)|QIODevice::Text){
         file.close();
