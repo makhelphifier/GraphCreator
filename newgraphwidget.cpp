@@ -7,13 +7,14 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 #include <QDir>
+#include <QFileDialog>
+
 NewGraphWidget::NewGraphWidget(QWidget *parent)
     : QWidget{parent}
 {
-
-
     setFixedSize(600,400);
     setWindowTitle("新建图");
+    setWindowIcon(QIcon());
 
     newButton = new QPushButton("新建...",this);
     cancelButton = new QPushButton("取消",this);
@@ -21,16 +22,9 @@ NewGraphWidget::NewGraphWidget(QWidget *parent)
     lineEdit = new QLineEdit(this);
     initTreeWidget();
     graphList = new QListWidget();
-
-
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
-
-
-
     QHBoxLayout* inputLayout = new QHBoxLayout();
     QHBoxLayout* buttonLayout = new QHBoxLayout();
-
-
     QSplitter* graphSpilter = new QSplitter(Qt::Horizontal,this);
 
     graphSpilter->addWidget(graphTree);
@@ -60,6 +54,179 @@ NewGraphWidget::NewGraphWidget(QWidget *parent)
     connect(graphTree,&QTreeWidget::itemClicked,this,&NewGraphWidget::on_graphTree_clicked);
 }
 
+NewGraphWidget::NewGraphWidget(QWidget *parent, QString openCase)
+{
+
+    setFixedSize(600,400);
+    setWindowIcon(QIcon());
+
+
+
+    textLabel = new QLabel("图名称：",this);
+    lineEdit = new QLineEdit(this);
+    // m_finalDirPath ="";
+    initTreeWidget();
+    graphList = new QListWidget();
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    QHBoxLayout* inputLayout = new QHBoxLayout();
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+    QSplitter* graphSpilter = new QSplitter(Qt::Horizontal,this);
+
+    graphSpilter->addWidget(graphTree);
+    graphSpilter->addWidget(graphList);
+    graphSpilter->setSizes({300, 700});
+
+    inputLayout->addStretch();
+    inputLayout->addWidget(textLabel);
+    inputLayout->addWidget(lineEdit);
+
+
+    buttonLayout->addStretch();
+
+    if(openCase=="OPEN"){
+        setWindowTitle("打开图");
+        openButton = new QPushButton("打开",this);
+        buttonLayout->addWidget(openButton);
+        connect(openButton,&QPushButton::clicked,this,&NewGraphWidget::on_openButton_clicked);
+
+    }else if(openCase=="MANAGER") {
+        setWindowTitle("图管理");
+        removeButton = new QPushButton("删除",this);
+        renameButton = new QPushButton("重命名",this);
+        buttonLayout->addWidget(renameButton);
+        buttonLayout->addWidget(removeButton);
+        connect(removeButton,&QPushButton::clicked,this,&NewGraphWidget::on_removeButton_clicked);
+        connect(renameButton,&QPushButton::clicked,this,&NewGraphWidget::on_renameButton_clicked);
+
+
+    }else if(openCase=="NEW") {
+        setWindowTitle("新建图");
+        newButton = new QPushButton("新建...",this);
+        buttonLayout->addWidget(newButton);
+        connect(newButton,&QPushButton::clicked,this,&NewGraphWidget::on_newButton_clicked);
+
+    }else if(openCase=="IMPORT") {
+        setWindowTitle("导入图");
+        importButton = new QPushButton("选择文件",this);
+        buttonLayout->addWidget(importButton);
+        connect(importButton,&QPushButton::clicked,this,&NewGraphWidget::on_importButton_clicked);
+
+    }
+    cancelButton = new QPushButton("取消",this);
+    buttonLayout->addWidget(cancelButton);
+
+
+
+    mainLayout->addWidget(graphSpilter);
+    mainLayout->addLayout(inputLayout);
+    mainLayout->addLayout(buttonLayout);
+
+    setLayout(mainLayout);
+
+
+    connect(cancelButton,&QPushButton::clicked,this,&NewGraphWidget::close);
+
+    connect(graphTree,&QTreeWidget::itemClicked,this,&NewGraphWidget::on_graphTree_clicked);
+
+
+}
+
+void NewGraphWidget::on_renameButton_clicked(){
+    QString targetFileName = lineEdit->text();
+    if(targetFileName.isEmpty()){
+        return;
+    }
+    QTreeWidgetItem* selectedItem = graphTree->currentItem();
+    if(!selectedItem){
+        qDebug()<<"未选中";
+        return;
+    }
+    if(!graphList->currentItem()){
+        return ;
+    }
+    QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
+    QString treePath = getTreeFullPath(selectedItem);
+    QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+    QString  targetPath = finalDirPath+( QDir::separator())+(targetFileName)+(".xml");
+    QString  sourcePath = finalDirPath+( QDir::separator())+(graphList->currentItem()->text());
+
+    QFile::remove(targetPath);
+    QFile::copy(sourcePath, targetPath);
+    QFile::remove(sourcePath);
+    update();
+    on_graphTree_clicked();
+}
+void NewGraphWidget::on_removeButton_clicked(){
+    QString targetFileName = lineEdit->text();
+    if(targetFileName.isEmpty()){
+        return;
+    }
+    QTreeWidgetItem* selectedItem = graphTree->currentItem();
+    if(!selectedItem){
+        qDebug()<<"未选中";
+        return;
+    }
+    if(!graphList->currentItem()){
+        return ;
+    }
+    QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
+    QString treePath = getTreeFullPath(selectedItem);
+    QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+    QString  sourcePath = finalDirPath.append( QDir::separator()).append(graphList->currentItem()->text());
+
+    QFile::remove(sourcePath);
+    update();
+    on_graphTree_clicked();
+}
+
+
+
+void NewGraphWidget::on_importButton_clicked()
+{
+    QTreeWidgetItem* selectedItem = graphTree->currentItem();
+    if(!selectedItem){
+        qDebug()<<"未选中";
+        return;
+    }
+    QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString filePath = QFileDialog::getOpenFileName(this,"选择导入的文件",documentPath,"XML Files (*.xml)");
+
+    QFileInfo fileInfo(filePath);
+    QString fileName = fileInfo.fileName();
+    QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
+    QString treePath = getTreeFullPath(selectedItem);
+    QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+    QString  targetPath = finalDirPath.append( QDir::separator()).append(fileName);
+    QFile::remove(targetPath);
+    QFile::copy(filePath, targetPath);
+    writeFileIntoScene(targetPath);
+
+    qDebug()<<"导入文件"+targetPath;
+}
+
+
+void NewGraphWidget::on_openButton_clicked()
+{
+    QTreeWidgetItem* selectedItem = graphTree->currentItem();
+    if(!selectedItem){
+        qDebug()<<"未选中";
+        return;
+    }
+    if(!graphList->currentItem()){
+        return ;
+    }
+    QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
+    QString treePath = getTreeFullPath(selectedItem);
+    QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+    QString filePath = finalDirPath.append( QDir::separator()).append( graphList->currentItem()->text());
+
+    writeFileIntoScene(filePath);
+    qDebug()<<"打开文件"+filePath;
+}
+
 
 void NewGraphWidget::on_graphTree_clicked(){
     qDebug()<<"on_graphTree_clicked";
@@ -69,13 +236,13 @@ void NewGraphWidget::on_graphTree_clicked(){
     QTreeWidgetItem* selectedItem = graphTree->currentItem();
     if(!selectedItem){
         qDebug()<<"未选中";
-
         return;
     }
     QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
     QString treePath = getTreeFullPath(selectedItem);
     QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+    // m_finalDirPath = finalDirPath;
     QDir dir(finalDirPath) ;
     if(!dir.exists()){
         qDebug()<<"路径不存在";
@@ -92,6 +259,7 @@ void NewGraphWidget::on_graphTree_clicked(){
     update();
 
 }
+
 
 
 
@@ -127,26 +295,16 @@ void NewGraphWidget::on_newButton_clicked(){
     if(file.open(QIODevice::WriteOnly)|QIODevice::Text){
 
         QTextStream out(&file);
-        out<<"Hello,Qt file;";
+        out<<"";
         out.flush();
         file.close();
         qDebug()<<filePath<<"文件已经成功创建";
+        writeFileIntoScene(filePath);
         this->close();
     }
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 void NewGraphWidget::initTreeWidget()
@@ -230,5 +388,10 @@ QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
         item = item->parent();
     }
     return pathList.join(QDir::separator());
+}
+
+void NewGraphWidget::writeFileIntoScene(QString &filePath)
+{
+
 }
 

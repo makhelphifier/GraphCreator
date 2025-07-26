@@ -13,7 +13,11 @@ int main(int argc, char *argv[])
     w.setMenuBar(menuBuilder.buildMenuBar());
     w.show();
 
-    menuBuilder.onNewGraphTriggered();
+    menuBuilder.onNewGraphTriggered(true);
+
+    menuBuilder.onOpenGraphTriggered(true);
+    menuBuilder.onImportGraphTriggered(true);
+    menuBuilder.onManagerGraphTriggered(true);
 
     return a.exec();
 }

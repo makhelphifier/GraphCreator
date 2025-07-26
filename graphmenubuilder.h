@@ -16,6 +16,10 @@ public:
     QMenuBar* buildMenuBar();
 public slots:
     void onNewGraphTriggered(bool checked = false);
+    void onOpenGraphTriggered(bool checked);
+    void onImportGraphTriggered(bool checked);
+    void onManagerGraphTriggered(bool checked);
+
 private:
     QMainWindow* m_parentWindow;
     QMenuBar* m_menuBar;
