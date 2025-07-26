@@ -16,6 +16,7 @@ class NewGraphWidget : public QWidget
 public:
     explicit NewGraphWidget(QWidget *parent = nullptr);
     explicit NewGraphWidget(QWidget *parent = nullptr,QString openCase= "");
+    void writeSceneIntoFile(QString &filePath);
 
 
 private:
@@ -35,6 +36,7 @@ private:
 
     QString getTreeFullPath(QTreeWidgetItem *item);
     void writeFileIntoScene(QString &filePath);
+
 signals:
 
 

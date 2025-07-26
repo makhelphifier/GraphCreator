@@ -1,11 +1,14 @@
 #include "graphmenubuilder.h"
 
+#include <QFileDialog>
+
 GraphMenuBuilder::GraphMenuBuilder() {}
 
 GraphMenuBuilder::GraphMenuBuilder(QMainWindow *parent)
 {
 
     m_menuBar = new QMenuBar();
+    m_parentWindow = parent;
     createMenus();
     createGraphActions();
 }
@@ -21,7 +24,26 @@ void GraphMenuBuilder::createMenus()
     QMenu* fileMenu = m_menuBar->addMenu("文件(&F)");
     fileMenu->addAction("新建(&N)",this,&GraphMenuBuilder::onNewGraphTriggered);
     fileMenu->addAction("打开(&O)",this,&GraphMenuBuilder::onOpenGraphTriggered);
-    fileMenu->addAction("退出(&X)");
+    fileMenu->addAction("导入(&I)",this,&GraphMenuBuilder::onImportGraphTriggered);
+    fileMenu->addAction("导出(&E)",this,&GraphMenuBuilder::onExportGraphTriggered);
+    fileMenu->addAction("图管理(&M)",this,&GraphMenuBuilder::onManagerGraphTriggered);
+
+    fileMenu->addAction("退出(&X)",m_parentWindow,&QMainWindow::close);
+
+}
+
+void GraphMenuBuilder::onExportGraphTriggered(bool checked ){
+    m_newGraphWidget = new NewGraphWidget(m_parentWindow,"IMPORT");
+
+    qDebug()<<"onExportGraphTriggered ";
+    QString filePath = QFileDialog::getSaveFileName(m_parentWindow,"导出图","","Svg 文件(*.svg);;Xml 文件(*.xml)");
+    QFile file(filePath);
+    if(file.open(QIODevice::WriteOnly)|QIODevice::Text){
+        file.close();
+        m_newGraphWidget->writeSceneIntoFile(filePath);
+
+    }
+
 
 }
 

@@ -131,6 +131,11 @@ NewGraphWidget::NewGraphWidget(QWidget *parent, QString openCase)
 
 }
 
+void NewGraphWidget::writeSceneIntoFile(QString &filePath)
+{
+
+}
+
 void NewGraphWidget::on_renameButton_clicked(){
     QString targetFileName = lineEdit->text();
     if(targetFileName.isEmpty()){
@@ -179,6 +184,7 @@ void NewGraphWidget::on_removeButton_clicked(){
     QFile::remove(sourcePath);
     update();
     on_graphTree_clicked();
+
 }
 
 
@@ -204,6 +210,8 @@ void NewGraphWidget::on_importButton_clicked()
     writeFileIntoScene(targetPath);
 
     qDebug()<<"导入文件"+targetPath;
+    this->close();
+
 }
 
 
@@ -225,6 +233,7 @@ void NewGraphWidget::on_openButton_clicked()
 
     writeFileIntoScene(filePath);
     qDebug()<<"打开文件"+filePath;
+    this->close();
 }
 
 
@@ -284,7 +293,6 @@ void NewGraphWidget::on_newButton_clicked(){
     QDir dir;
     if(!dir.mkpath(finalDirPath)){
         QMessageBox::critical(this,"错误","无法创建目录"+defaultSavePath.append(QDir::separator()).append(treePath)+"\n请检查程序权限或目标路径是否有效。");
-
     }
 
 

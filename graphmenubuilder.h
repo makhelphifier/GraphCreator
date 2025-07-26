@@ -20,6 +20,7 @@ public slots:
     void onImportGraphTriggered(bool checked);
     void onManagerGraphTriggered(bool checked);
 
+    void onExportGraphTriggered(bool checked);
 private:
     QMainWindow* m_parentWindow;
     QMenuBar* m_menuBar;
