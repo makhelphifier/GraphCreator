@@ -3,7 +3,10 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
-
+#include <qheaderview.h>
+#include <QMessageBox>
+#include <QStandardPaths>
+#include <QDir>
 NewGraphWidget::NewGraphWidget(QWidget *parent)
     : QWidget{parent}
 {
@@ -17,7 +20,7 @@ NewGraphWidget::NewGraphWidget(QWidget *parent)
     textLabel = new QLabel("图名称：",this);
     lineEdit = new QLineEdit(this);
     initTreeWidget();
-    graphList = new QListWidget(this);
+    graphList = new QListWidget();
 
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -48,11 +51,103 @@ NewGraphWidget::NewGraphWidget(QWidget *parent)
     mainLayout->addLayout(inputLayout);
     mainLayout->addLayout(buttonLayout);
 
-
-
     setLayout(mainLayout);
 
+
+    connect(newButton,&QPushButton::clicked,this,&NewGraphWidget::on_newButton_clicked);
+    connect(cancelButton,&QPushButton::clicked,this,&NewGraphWidget::close);
+
+    connect(graphTree,&QTreeWidget::itemClicked,this,&NewGraphWidget::on_graphTree_clicked);
 }
+
+
+void NewGraphWidget::on_graphTree_clicked(){
+    qDebug()<<"on_graphTree_clicked";
+    graphList->clear();
+    update();
+
+    QTreeWidgetItem* selectedItem = graphTree->currentItem();
+    if(!selectedItem){
+        qDebug()<<"未选中";
+
+        return;
+    }
+    QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
+    QString treePath = getTreeFullPath(selectedItem);
+    QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+    QDir dir(finalDirPath) ;
+    if(!dir.exists()){
+        qDebug()<<"路径不存在";
+
+        return;
+    }
+
+    QStringList fileList = dir.entryList(QDir::Files|QDir::NoDotAndDotDot);
+    qDebug()<<"fileList";
+    for(const QString &fileName:fileList){
+        qDebug()<<fileName;
+        graphList->addItem(fileName);
+    }
+    update();
+
+}
+
+
+
+void NewGraphWidget::on_newButton_clicked(){
+
+    QString graphName =  lineEdit->text().trimmed();
+    if(graphName.isEmpty()){
+        QMessageBox::warning(this,"警告","图名称不能为空，请输入");
+        return;
+    }
+
+    QTreeWidgetItem* selectedItem = graphTree->currentItem();
+    if(!selectedItem){
+        QMessageBox::warning(this,"警告","请在左侧树状图选择");
+    }
+
+    QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
+    QString treePath = getTreeFullPath(selectedItem);
+    QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+
+    QDir dir;
+    if(!dir.mkpath(finalDirPath)){
+        QMessageBox::critical(this,"错误","无法创建目录"+defaultSavePath.append(QDir::separator()).append(treePath)+"\n请检查程序权限或目标路径是否有效。");
+
+    }
+
+
+    QString filePath = finalDirPath.append(QDir::separator()).append(graphName).append(".xml");
+    filePath = QDir::cleanPath(filePath);
+    QFile file(filePath);
+
+    if(file.open(QIODevice::WriteOnly)|QIODevice::Text){
+
+        QTextStream out(&file);
+        out<<"Hello,Qt file;";
+        out.flush();
+        file.close();
+        qDebug()<<filePath<<"文件已经成功创建";
+        this->close();
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 void NewGraphWidget::initTreeWidget()
 {
@@ -63,9 +158,38 @@ void NewGraphWidget::initTreeWidget()
     graphicsItem ->setText(0,"图形");
     graphicsItem->setFlags(graphicsItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
+    QTreeWidgetItem* publicItem = new QTreeWidgetItem(graphicsItem);
+    publicItem->setText(0,"公用");
+    publicItem->setFlags(publicItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+
+    QTreeWidgetItem* jiangsuItem = new QTreeWidgetItem(graphicsItem);
+    jiangsuItem->setText(0,"江苏");
+    jiangsuItem->setFlags(jiangsuItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+
+    QTreeWidgetItem* jiangsu5Item = new QTreeWidgetItem(jiangsuItem);
+    jiangsu5Item->setText(0,"5#");
+    jiangsu5Item->setFlags(jiangsu5Item->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+
+    QTreeWidgetItem* jiangsu6Item = new QTreeWidgetItem(jiangsuItem);
+    jiangsu6Item->setText(0,"6#");
+    jiangsu6Item->setFlags(jiangsu6Item->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
     QTreeWidgetItem* primitiveItem  = new QTreeWidgetItem(graphTree);
     primitiveItem ->setText(0,"图元");
     primitiveItem->setFlags(primitiveItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+    QTreeWidgetItem* primitiveCartoonItem  = new QTreeWidgetItem(primitiveItem);
+    primitiveCartoonItem ->setText(0,"动画元素");
+    primitiveCartoonItem->setFlags(primitiveCartoonItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+
+    QTreeWidgetItem* primitivePublicItem  = new QTreeWidgetItem(primitiveItem);
+    primitivePublicItem ->setText(0,"公用");
+    primitivePublicItem->setFlags(primitivePublicItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
 
 
     QTreeWidgetItem* templateItem  = new QTreeWidgetItem(graphTree);
@@ -73,16 +197,38 @@ void NewGraphWidget::initTreeWidget()
     templateItem->setFlags(templateItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
 
+    QTreeWidgetItem* templatePublicItem  = new QTreeWidgetItem(templateItem);
+    templatePublicItem ->setText(0,"公用模板");
+    templatePublicItem->setFlags(templatePublicItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+
     QTreeWidgetItem* blockItem  = new QTreeWidgetItem(graphTree);
     blockItem ->setText(0,"图块");
     blockItem->setFlags(blockItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
+
+    QTreeWidgetItem* blockPublicItem  = new QTreeWidgetItem(blockItem);
+    blockPublicItem ->setText(0,"公用图块");
+    blockPublicItem->setFlags(blockPublicItem->flags()|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+
     graphTree->setRootIsDecorated(false);
     graphTree->expandAll();
-
+    graphTree->header()->hide();
 
 
 }
 
 
+
+QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
+
+    QStringList pathList;
+
+    while(item){
+        pathList.prepend(item->text(0));
+        item = item->parent();
+    }
+    return pathList.join(QDir::separator());
+}
 

@@ -7,7 +7,7 @@
 #include <QTreeWidget>
 #include <QListWidget>
 #include <QLineEdit>
-
+#include <QList>
 
 
 class NewGraphWidget : public QWidget
@@ -25,12 +25,17 @@ private:
     QListWidget* graphList;
     QLineEdit* lineEdit;
 
+
     void initTreeWidget();
 
 
+    QString getTreeFullPath(QTreeWidgetItem *item);
 signals:
 
 
+private slots:
+    void on_newButton_clicked();
+    void on_graphTree_clicked();
 };
 
 #endif // NEWGRAPHWIDGET_H
