@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     // menuBuilder.onOpenGraphTriggered(true);
     // menuBuilder.onImportGraphTriggered(true);
     // menuBuilder.onManagerGraphTriggered(true);
+    menuBuilder.onPageSetupGraphTriggered();
 
     return a.exec();
 }

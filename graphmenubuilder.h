@@ -6,7 +6,7 @@
 #include <QMainWindow>
 #include "newgraphwidget.h"
 #include <QGraphicsScene>
-
+#include "pagesetupdialog.h"
 
 class GraphMenuBuilder :public QObject {
     Q_OBJECT
@@ -24,6 +24,7 @@ public slots:
     void onExportGraphTriggered(bool checked);
     void onPrintGraphTriggered(bool checked);
     void printGraph();
+    void onPageSetupGraphTriggered();
 private:
     QMainWindow* m_parentWindow;
     QMenuBar* m_menuBar;
@@ -31,7 +32,7 @@ private:
     void createMenus();
     void createGraphActions();
     NewGraphWidget* m_newGraphWidget;
-
+    PageSetupDialog* m_pageSetupDialog;
 };
 
 #endif // GRAPHMENUBUILDER_H

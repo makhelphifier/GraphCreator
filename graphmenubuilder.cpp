@@ -35,6 +35,7 @@ void GraphMenuBuilder::createMenus()
     fileMenu->addAction("导出(&E)",this,&GraphMenuBuilder::onExportGraphTriggered);
     fileMenu->addAction("图管理(&M)",this,&GraphMenuBuilder::onManagerGraphTriggered);
     fileMenu->addAction("打印(&P)",this,&GraphMenuBuilder::onPrintGraphTriggered);
+    fileMenu->addAction("页面设置(&S)",this,&GraphMenuBuilder::onPageSetupGraphTriggered);
 
     fileMenu->addAction("退出(&X)",m_parentWindow,&QMainWindow::close);
 
@@ -50,6 +51,13 @@ void GraphMenuBuilder::onPrintGraphTriggered(bool checked ){
 
 }
 
+
+
+void GraphMenuBuilder::onPageSetupGraphTriggered(){
+    m_pageSetupDialog = new PageSetupDialog(m_parentWindow);
+    m_pageSetupDialog->show();
+
+}
 void GraphMenuBuilder::printGraph(){
 
 }
