@@ -36,8 +36,11 @@ void GraphMenuBuilder::createMenus()
     fileMenu->addAction("图管理(&M)",this,&GraphMenuBuilder::onManagerGraphTriggered);
     fileMenu->addAction("打印(&P)",this,&GraphMenuBuilder::onPrintGraphTriggered);
     fileMenu->addAction("页面设置(&S)",this,&GraphMenuBuilder::onPageSetupGraphTriggered);
-
     fileMenu->addAction("退出(&X)",m_parentWindow,&QMainWindow::close);
+
+
+    QMenu* editMenu = m_menuBar->addMenu("文件(&F)");
+    editMenu->addAction("撤销(&Ctrl+Z)",this,&GraphMenuBuilder::onNewGraphTriggered);
 
 }
 void GraphMenuBuilder::onPrintGraphTriggered(bool checked ){

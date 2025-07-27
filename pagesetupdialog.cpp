@@ -7,6 +7,7 @@ PageSetupDialog::PageSetupDialog(QWidget *parent)
 {
     customRadioButtonSize = new QRadioButton("自定义大小(像素)",this);
 
+    setWindowTitle("设置页面尺寸");
     resize(300,200);
 
     widthSpinBox = new QSpinBox(this);
