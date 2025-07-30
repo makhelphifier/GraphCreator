@@ -8,6 +8,7 @@
 #include <QListWidget>
 #include <QLineEdit>
 #include <QList>
+#include <QGraphicsScene>
 
 
 class NewGraphWidget : public QWidget
@@ -17,6 +18,7 @@ public:
     explicit NewGraphWidget(QWidget *parent = nullptr);
     explicit NewGraphWidget(QWidget *parent = nullptr,QString openCase= "");
     void writeSceneIntoFile(QString &filePath);
+    static void writeFileIntoScene( const QString &filePath,QGraphicsScene* scene);
 
 
 private:
@@ -35,7 +37,6 @@ private:
 
 
     QString getTreeFullPath(QTreeWidgetItem *item);
-    void writeFileIntoScene(QString &filePath);
 
 signals:
 

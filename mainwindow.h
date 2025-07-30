@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <QGraphicsView>
+#include <QGraphicsScene>
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -10,5 +11,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QGraphicsScene* m_scene ;
+
+private:
+    QGraphicsView* m_view ;
 };
 #endif // MAINWINDOW_H

@@ -8,7 +8,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QFileDialog>
-
+#include <QGraphicsRectItem>
 NewGraphWidget::NewGraphWidget(QWidget *parent)
     : QWidget{parent}
 {
@@ -207,7 +207,7 @@ void NewGraphWidget::on_importButton_clicked()
     QString  targetPath = finalDirPath.append( QDir::separator()).append(fileName);
     QFile::remove(targetPath);
     QFile::copy(filePath, targetPath);
-    writeFileIntoScene(targetPath);
+    // writeFileIntoScene(targetPath);
 
     qDebug()<<"导入文件"+targetPath;
     this->close();
@@ -231,7 +231,7 @@ void NewGraphWidget::on_openButton_clicked()
     QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
     QString filePath = finalDirPath.append( QDir::separator()).append( graphList->currentItem()->text());
 
-    writeFileIntoScene(filePath);
+    // writeFileIntoScene(filePath);
     qDebug()<<"打开文件"+filePath;
     this->close();
 }
@@ -307,7 +307,7 @@ void NewGraphWidget::on_newButton_clicked(){
         out.flush();
         file.close();
         qDebug()<<filePath<<"文件已经成功创建";
-        writeFileIntoScene(filePath);
+        // writeFileIntoScene(filePath);
         this->close();
     }
 
@@ -386,7 +386,9 @@ void NewGraphWidget::initTreeWidget()
 }
 
 
-
+#include <QGraphicsLineItem>
+#include <QPen>
+#include "graphtextitem.h"
 QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
 
     QStringList pathList;
@@ -398,8 +400,24 @@ QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
     return pathList.join(QDir::separator());
 }
 
-void NewGraphWidget::writeFileIntoScene(QString &filePath)
+void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* scene)
 {
+
+    QGraphicsRectItem* item = new QGraphicsRectItem(3,4,12,23);
+    QGraphicsLineItem* line = new QGraphicsLineItem(100,100,200,200);
+    QPen pen ;
+    pen.setColor(Qt::red);
+    line->setPen(pen);
+    line->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
+
+    item->setBrush(Qt::yellow);
+    scene->addItem(item);
+    scene->addItem(line);
+
+    GraphTextItem* text = new GraphTextItem(item);
+    text->setPlainText("测试");
+    scene->addItem(text);
+
 
 }
 

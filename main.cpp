@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include "graphmenubuilder.h"
+#include "newgraphwidget.h"
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -21,6 +22,8 @@ int main(int argc, char *argv[])
     // menuBuilder.onPageSetupGraphTriggered();
 
     // menuBuilder.on_actionConfigurePreview_triggered();
+
+    NewGraphWidget::writeFileIntoScene("sss",w.m_scene);
 
     return a.exec();
 }
