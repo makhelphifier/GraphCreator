@@ -10,26 +10,51 @@
 GraphTextItem::GraphTextItem(const QString &text, QGraphicsItem *parent)
 {
 
-    this->setDefaultTextColor(Qt::black);
+    this->setDefaultTextColor(Qt::red);
     this->setFont(QFont("Arial",12));
-    this->setFlags(QGraphicsItem::ItemIsFocusable|QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
     this->setPlainText(text);
-    this->setTextInteractionFlags(Qt::TextEditorInteraction);
+
+    this->setFlags(QGraphicsItem::ItemIsFocusable|QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
+    // this->setTextInteractionFlags(Qt::TextEditorInteraction);
     this->update();
 }
-
+#include <QStyleOptionGraphicsItem>
 void GraphTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     drawHandle(painter,QPointF(100,200),8);
 
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(Qt::NoBrush);
-    painter->setBrush(Qt::yellow);
+    // painter->setPen(Qt::NoPen);
+    // painter->setBrush(Qt::NoBrush);
+    // // painter->setBrush(Qt::yellow);
 
 
-    QRectF boundRect =  this->boundingRect();
-    painter->drawRoundedRect(boundRect,5,5);
+    // painter->drawRoundedRect(boundRect,5,5);
+    QStyleOptionGraphicsItem tempOption(*option);
+    qDebug()<<tempOption.state<<"====before";
 
+    tempOption.state &=~ QStyle::State_Selected;
+    tempOption.state &=~ QStyle::State_HasFocus;
+    qDebug()<<tempOption.state<<"====after";
+    QGraphicsTextItem::paint(painter,&tempOption,widget);
+
+    if(option->state&QStyle::State_Selected){
+        QRectF boundRect = this->boundingRect();
+        QPen selectionBoxPen(Qt::black,1,Qt::DotLine);
+        painter->setPen(selectionBoxPen);
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(boundRect);
+
+        qreal handleSize = 4;
+        drawHandle(painter,boundRect.topLeft(),handleSize);
+        drawHandle(painter,boundRect.topRight(),handleSize);
+        drawHandle(painter,boundRect.bottomLeft(),handleSize);
+        drawHandle(painter,boundRect.bottomRight(),handleSize);
+        drawHandle(painter,boundRect.center()+QPointF(0,boundRect.height()/2),handleSize);
+        drawHandle(painter,boundRect.center()+QPointF(0, -boundRect.height()/2),handleSize);
+        drawHandle(painter,boundRect.center()+QPointF(boundRect.width()/2,0),handleSize);
+        drawHandle(painter,boundRect.center()+QPointF(-boundRect.width()/2,0),handleSize);
+
+    }
 }
 
 
@@ -42,93 +67,3 @@ void GraphTextItem::drawHandle(QPainter *painter, const QPointF &pos, qreal size
     // painter->drawPoint(pos);
 }
 
-
-bool GraphTextItem::sceneEvent(QEvent *event)
-{
-    return QGraphicsTextItem::sceneEvent(event);
-}
-
-void GraphTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    QGraphicsTextItem::mousePressEvent(event);
-}
-
-void GraphTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    QGraphicsTextItem::mouseMoveEvent(event);
-}
-
-void GraphTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    QGraphicsTextItem::mouseReleaseEvent(event);
-}
-
-void GraphTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
-{
-    QGraphicsTextItem::mouseDoubleClickEvent(event);
-}
-
-void GraphTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
-{
-    QGraphicsTextItem::contextMenuEvent(event);
-}
-
-void GraphTextItem::keyPressEvent(QKeyEvent *event)
-{
-    QGraphicsTextItem::keyPressEvent(event);
-}
-
-void GraphTextItem::keyReleaseEvent(QKeyEvent *event)
-{
-    QGraphicsTextItem::keyReleaseEvent(event);
-}
-
-void GraphTextItem::focusInEvent(QFocusEvent *event)
-{
-    QGraphicsTextItem::focusInEvent(event);
-}
-
-void GraphTextItem::focusOutEvent(QFocusEvent *event)
-{
-    QGraphicsTextItem::focusOutEvent(event);
-}
-
-void GraphTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
-{
-    QGraphicsTextItem::dragEnterEvent(event);
-}
-
-void GraphTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
-{
-    QGraphicsTextItem::dragLeaveEvent(event);
-}
-
-void GraphTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
-{
-    QGraphicsTextItem::dragMoveEvent(event);
-}
-
-void GraphTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
-{
-    QGraphicsTextItem::dropEvent(event);
-}
-
-void GraphTextItem::inputMethodEvent(QInputMethodEvent *event)
-{
-    QGraphicsTextItem::inputMethodEvent(event);
-}
-
-void GraphTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-    QGraphicsTextItem::hoverEnterEvent(event);
-}
-
-void GraphTextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-{
-    QGraphicsTextItem::hoverMoveEvent(event);
-}
-
-void GraphTextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-    QGraphicsTextItem::hoverLeaveEvent(event);
-}
