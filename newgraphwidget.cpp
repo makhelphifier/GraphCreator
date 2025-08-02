@@ -414,8 +414,7 @@ void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* 
     scene->addItem(item);
     scene->addItem(line);
 
-    GraphTextItem* text = new GraphTextItem(item);
-    text->setPlainText("测试");
+    GraphTextItem* text = new GraphTextItem("测试",item);
     scene->addItem(text);
 
 
