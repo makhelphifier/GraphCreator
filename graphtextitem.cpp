@@ -9,13 +9,9 @@
 
 GraphTextItem::GraphTextItem(const QString &text, QGraphicsItem *parent)
 {
-    this->setPlainText(text);
-    this->setFlags(QGraphicsItem::ItemIsFocusable|QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsFocusable);
-
     this->setDefaultTextColor(Qt::red);
     this->setFont(QFont("Arial",12));
     this->setPlainText(text);
-
     this->setFlags(QGraphicsItem::ItemIsFocusable|QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
     this->setTextInteractionFlags(Qt::NoTextInteraction);
     this->update();

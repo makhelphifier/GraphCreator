@@ -400,23 +400,27 @@ QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
     return pathList.join(QDir::separator());
 }
 
+#include "enhancedlineitem.h"
 void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* scene)
 {
 
-    QGraphicsRectItem* item = new QGraphicsRectItem(3,4,12,23);
-    QGraphicsLineItem* line = new QGraphicsLineItem(100,100,200,200);
-    QPen pen ;
-    pen.setColor(Qt::red);
-    line->setPen(pen);
-    line->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
+    // QGraphicsRectItem* item = new QGraphicsRectItem(3,4,12,23);
+    // QGraphicsLineItem* line = new QGraphicsLineItem(100,100,200,200);
+    // QPen pen ;
+    // pen.setColor(Qt::red);
+    // line->setPen(pen);
+    // line->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
 
-    item->setBrush(Qt::yellow);
-    scene->addItem(item);
+    // item->setBrush(Qt::yellow);
+    // scene->addItem(item);
+    // scene->addItem(line);
+
+    GraphTextItem* text = new GraphTextItem("测试",nullptr);
+    // scene->addItem(text);
+
+    EnhancedLineItem* line = new EnhancedLineItem();
+    line->setLine(QLineF(QPointF(20,20),QPointF(100,100)));
     scene->addItem(line);
-
-    GraphTextItem* text = new GraphTextItem("测试",item);
-    scene->addItem(text);
-
 
 }
 

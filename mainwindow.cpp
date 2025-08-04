@@ -11,15 +11,26 @@ MainWindow::MainWindow(QWidget *parent)
     m_view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
     m_scene->setSceneRect(0, 0, 1584, 768); // 设置场景的推荐大小
-    // // 例如，添加一个矩形来测试
-    QGraphicsRectItem* rectItem = new QGraphicsRectItem(0, 0, 100, 100);
-    rectItem->setBrush(Qt::green);
-    m_scene->addItem(rectItem);
     setCentralWidget(m_view);
-
+    m_view->setDragMode(QGraphicsView::RubberBandDrag); // 允许框选
+    m_view->scale(4,4);
 
 }
 
 MainWindow::~MainWindow() {
 
+}
+#include <QWheelEvent>
+void MainWindow::wheelEvent(QWheelEvent *event)
+{
+    if(event->modifiers()&Qt::ControlModifier){
+        if(event->angleDelta().y()>0){
+            m_view->scale(1.2,1.2);
+        }else{
+            m_view->scale(1/1.2,1/1.2);
+
+        }
+    }else{
+        QMainWindow::wheelEvent(event);
+    }
 }

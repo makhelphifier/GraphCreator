@@ -12,6 +12,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     QGraphicsScene* m_scene ;
+protected:
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
     QGraphicsView* m_view ;
