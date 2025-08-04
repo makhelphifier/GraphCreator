@@ -68,40 +68,83 @@ void GraphTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
 void GraphTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+
     if(event->button()==Qt::LeftButton){
         this->setSelected(true);
-
-        // 获取当前鼠标在项目坐标系下的位置
-        QPointF mousePos = event->pos();
-        qDebug() << "Mouse position (local):" << mousePos;
-
-        // 获取项目的边界矩形
-        QRectF boundRect = this->boundingRect();
-        qreal handleSize = 4;
-        qreal halfSize = handleSize / 2.0;
-
-        // 计算并打印每个手柄的矩形范围
-        qDebug() << "--- Handle Rects ---";
-        qDebug() << "TopLeft:"     << QRectF(boundRect.topLeft()     - QPointF(halfSize, halfSize), QSizeF(handleSize, handleSize));
-        qDebug() << "TopMiddle:"   << QRectF(boundRect.top()         - halfSize, boundRect.center().x() - halfSize, handleSize, handleSize);
-        qDebug() << "TopRight:"    << QRectF(boundRect.topRight()    - QPointF(halfSize, halfSize), QSizeF(handleSize, handleSize));
-        qDebug() << "MiddleLeft:"  << QRectF(boundRect.left()        - halfSize, boundRect.center().y() - halfSize, handleSize, handleSize);
-        qDebug() << "MiddleRight:" << QRectF(boundRect.right()       - halfSize, boundRect.center().y() - halfSize, handleSize, handleSize);
-        qDebug() << "BottomLeft:"  << QRectF(boundRect.bottomLeft()  - QPointF(halfSize, halfSize), QSizeF(handleSize, handleSize));
-        qDebug() << "BottomMiddle:"<< QRectF(boundRect.bottom()      - halfSize, boundRect.center().x() - halfSize, handleSize, handleSize);
-        qDebug() << "BottomRight:" << QRectF(boundRect.bottomRight() - QPointF(halfSize, halfSize), QSizeF(handleSize, handleSize));
-        qDebug() << "--------------------";
-
-        // 输出鼠标点击的手柄，这是你之前的功能
+        // 输出鼠标点击的手柄
         qDebug() << "Clicked Handle:" << handleToString(currentHandlePosition(event->pos()));
-        QGraphicsTextItem::mousePressEvent(event);
+        m_activeHandle = currentHandlePosition(event->pos());
+        if (m_activeHandle != None) {
+            event->accept();
+        }else{
+            QGraphicsTextItem::mousePressEvent(event);
+        }
     }else{
         QGraphicsTextItem::mousePressEvent(event);
     }
 }
 
+
+void GraphTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    // 只有在拖动手柄时才处理
+    if (m_activeHandle != None) {
+        // 根据鼠标移动计算新的尺寸和位置
+        QRectF newRect = this->boundingRect();
+        QPointF delta = event->pos() - event->lastPos();
+
+        // 调整矩形
+        switch (m_activeHandle) {
+        case TopLeft:
+            newRect.setTopLeft(newRect.topLeft() + delta);
+            break;
+        case TopMiddle:
+            newRect.setTop(newRect.top() + delta.y());
+            break;
+        case TopRight:
+            newRect.setTopRight(newRect.topRight() + delta);
+            break;
+        case MiddleLeft:
+            newRect.setLeft(newRect.left() + delta.x());
+            break;
+        case MiddleRight:
+            newRect.setRight(newRect.right() + delta.x());
+            break;
+        case BottomLeft:
+            newRect.setBottomLeft(newRect.bottomLeft() + delta);
+            break;
+        case BottomMiddle:
+            newRect.setBottom(newRect.bottom() + delta.y());
+            break;
+        case BottomRight:
+            newRect.setBottomRight(newRect.bottomRight() + delta);
+            break;
+        default:
+            break;
+        }
+
+        // 确保新矩形有效（宽度和高度大于0）
+        if (newRect.width() > 0 && newRect.height() > 0) {
+            // 准备进行几何变化
+            prepareGeometryChange();
+
+            // 根据新矩形调整位置
+            QPointF newPos = mapToParent(newRect.topLeft());
+            setPos(newPos);
+
+            // 调整宽度，QGraphicsTextItem 的高度会自动根据文本内容和宽度调整
+            setTextWidth(newRect.width());
+        }
+        event->accept();
+    } else {
+        // 如果没有拖动手柄，执行父类的移动逻辑
+        QGraphicsTextItem::mouseMoveEvent(event);
+    }
+}
+
 void GraphTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    m_activeHandle = None;
     QGraphicsTextItem::mouseReleaseEvent(event);
 
 }
