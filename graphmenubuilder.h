@@ -49,6 +49,12 @@ public slots:
     void on_actionStatusBar_triggered();
     void on_actionGrid_triggered();
     void on_actionDrawingExplorer_triggered();
+    void on_actionTileHorizontally_triggered();
+    void on_actionTileVertically_triggered();
+    void on_actionCascade_triggered();
+    void on_actionArrangeIcons_triggered();
+    void on_actionAbout_triggered();
+    void on_actionChangelog_triggered();
 private:
     QMainWindow* m_parentWindow;
     QMenuBar* m_menuBar;

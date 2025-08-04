@@ -77,6 +77,16 @@ void GraphMenuBuilder::createMenus()
     QMenu* toolMenu = m_menuBar->addMenu("工具(&T)");
     toolMenu->addAction("配置预览方式",this,&GraphMenuBuilder::on_actionConfigurePreview_triggered);
 
+    QMenu* windowMenu = m_menuBar->addMenu("窗口(&W)");
+    windowMenu->addAction("横向平铺",this,&GraphMenuBuilder::on_actionTileHorizontally_triggered);
+    windowMenu->addAction("纵向平铺",this,&GraphMenuBuilder::on_actionTileVertically_triggered);
+    windowMenu->addAction("层叠",this,&GraphMenuBuilder::on_actionCascade_triggered);
+    windowMenu->addAction("排列图标",this,&GraphMenuBuilder::on_actionArrangeIcons_triggered);
+    windowMenu->addSeparator();
+
+    QMenu* helpMenu = m_menuBar->addMenu("帮助(&H)");
+    helpMenu->addAction("关于",this,&GraphMenuBuilder::on_actionAbout_triggered);
+    helpMenu->addAction("更新日志...",this,&GraphMenuBuilder::on_actionChangelog_triggered);
 
 
 
@@ -110,8 +120,12 @@ void GraphMenuBuilder::on_actionStatusBar_triggered(){}
 void GraphMenuBuilder::on_actionGrid_triggered(){}
 void GraphMenuBuilder::on_actionDrawingExplorer_triggered(){}
 
-
-
+void GraphMenuBuilder::on_actionTileHorizontally_triggered() { }
+void GraphMenuBuilder::on_actionTileVertically_triggered() { }
+void GraphMenuBuilder::on_actionCascade_triggered() { }
+void GraphMenuBuilder::on_actionArrangeIcons_triggered() { }
+void GraphMenuBuilder::on_actionAbout_triggered() { }
+void GraphMenuBuilder::on_actionChangelog_triggered() { }
 
 void GraphMenuBuilder::onPrintGraphTriggered(bool checked ){
 
