@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(m_view);
     m_view->setDragMode(QGraphicsView::RubberBandDrag); // 允许框选
     m_view->scale(4,4);
+    m_view->setRenderHint(QPainter::Antialiasing,true);
 
 }
 
