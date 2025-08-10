@@ -14,7 +14,8 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
     QPainterPath shape() const override;
-
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 private:
     void drawHandle(QPainter *painter, const QPointF &pos, qreal size);
     void drawRotationHandle(QPainter *painter);
@@ -22,6 +23,15 @@ private:
     QRectF rotationHandleRect() const;
     bool isPostionOnRotationHandle(const QPointF& pos) const;
 
+    enum Handle{
+        NoHandle,
+        StartHandle,
+        EndHandle,
+        RotationHandle
+    };
+
+    Handle m_activeHandle = NoHandle;
+    Handle handleAt(const QPointF &pos) const;
 };
 
 #endif // ENHANCEDLINEITEM_H

@@ -10,6 +10,7 @@
 
 EnhancedLineItem::EnhancedLineItem() {
     this->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsFocusable);
+    this->setAcceptHoverEvents(true);
     QPen pen;
     pen.setWidth(1);
     pen.setColor(Qt::darkBlue);
@@ -30,7 +31,7 @@ void EnhancedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     if(option->state&QStyle::State_Selected){
         const qreal lod = QStyleOptionGraphicsItem::levelOfDetailFromTransform(painter->worldTransform());
-        const qreal handlePixelSize = 2;
+        const qreal handlePixelSize = 8;
         const qreal handleSceneSize = handlePixelSize / lod ;
         drawHandle(painter,this->line().p1(),handleSceneSize);
         drawHandle(painter,this->line().p2(),handleSceneSize);
@@ -44,13 +45,20 @@ void EnhancedLineItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     bool isOnHandle = isPostionOnRotationHandle(event->pos());
     qDebug() << "Is on rotation handle?" << isOnHandle;
 
-    if(isPostionOnRotationHandle(event->pos())){
-        m_isRotating = true;
-        setCursor(Qt::CrossCursor);
-        event->accept();
-        qDebug() << "Rotation mode activated. Event accepted. Returning.";
-
-        return;
+    m_activeHandle = handleAt(event->pos());
+    if(m_activeHandle!=NoHandle){
+        if(m_activeHandle == RotationHandle){
+            m_isRotating = true;
+            setCursor(Qt::CrossCursor);
+            event->accept();
+            qDebug() << "Rotation mode activated. Event accepted. Returning.";
+            return;
+        }else{
+            setCursor(Qt::CrossCursor);
+            event->accept();
+            qDebug() << "Dragging mode activated. Event accepted. Returning.";
+            return;
+        }
     }
     qDebug() << "Not on handle. Passing event to base class.";
     m_isRotating = false;
@@ -59,7 +67,11 @@ void EnhancedLineItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void EnhancedLineItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(m_isRotating){
+    if(m_activeHandle == StartHandle ){
+        this->setLine(QLineF(event->pos(),this->line().p2()));
+    }else if(m_activeHandle == EndHandle){
+        this->setLine(QLineF(this->line().p1(),event->pos()));
+    }else if(m_isRotating){
         QPointF center = (this->line().p1()+this->line().p2())/2;
         QLineF lineToLastPos(center,event->lastPos());
         QLineF lineToCurrentPos(center,event->pos());
@@ -98,7 +110,7 @@ QPainterPath EnhancedLineItem::shape() const
     QPainterPath path;
     QPainterPathStroker stroker ;
     stroker.setWidth(10);
-    stroker.setCapStyle(Qt::RoundCap);
+    stroker.setCapStyle(Qt::FlatCap);
 
     QPainterPath linePath;
     linePath.moveTo(this->line().p1());
@@ -109,11 +121,31 @@ QPainterPath EnhancedLineItem::shape() const
     path.addEllipse(this->line().p1(),handlePixelSize,handlePixelSize);
     path.addEllipse(this->line().p2(),handlePixelSize,handlePixelSize);
 
+
+
     QRectF rotHandleRect = rotationHandleRect();
     path.addEllipse(rotHandleRect);
 
 
     return path;
+}
+
+void EnhancedLineItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Handle handle = handleAt(event->pos());
+    if(handle!=NoHandle){
+        this->setCursor(Qt::CrossCursor);
+    }else{
+        this->setCursor(Qt::ArrowCursor);
+    }
+    QGraphicsLineItem::hoverMoveEvent(event);
+}
+
+void EnhancedLineItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    this->setCursor(Qt::ArrowCursor);
+    QGraphicsLineItem::hoverLeaveEvent(event);
+
 }
 void EnhancedLineItem::drawHandle(QPainter *painter, const QPointF &pos, qreal size)
 {
@@ -159,4 +191,21 @@ QRectF EnhancedLineItem::rotationHandleRect() const
 bool EnhancedLineItem::isPostionOnRotationHandle(const QPointF &pos) const
 {
     return rotationHandleRect().contains(pos);
+}
+
+EnhancedLineItem::Handle EnhancedLineItem::handleAt(const QPointF &pos) const
+{
+    const qreal handleRadius =8.0;
+    qDebug()<<"start length === "<< QLineF(this->line().p1(),pos).length();
+
+    qDebug()<<"???==="<<(QLineF(this->line().p1(),pos).length()<=handleRadius);
+    if(QLineF(this->line().p1(),pos).length()<=handleRadius){
+        return StartHandle;
+    }else if(QLineF(this->line().p2(),pos).length()<=handleRadius){
+        return EndHandle;
+    }else if(rotationHandleRect().contains(pos)){
+        return RotationHandle;
+    }else{
+        return NoHandle;
+    }
 }
