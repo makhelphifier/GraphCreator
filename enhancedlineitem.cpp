@@ -51,12 +51,12 @@ void EnhancedLineItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             m_isRotating = true;
             setCursor(Qt::CrossCursor);
             event->accept();
-            qDebug() << "Rotation mode activated. Event accepted. Returning.";
+            // qDebug() << "Rotation mode activated. Event accepted. Returning.";
             return;
         }else{
             setCursor(Qt::CrossCursor);
             event->accept();
-            qDebug() << "Dragging mode activated. Event accepted. Returning.";
+            // qDebug() << "Dragging mode activated. Event accepted. Returning.";
             return;
         }
     }
@@ -121,12 +121,8 @@ QPainterPath EnhancedLineItem::shape() const
     path.addEllipse(this->line().p1(),handlePixelSize,handlePixelSize);
     path.addEllipse(this->line().p2(),handlePixelSize,handlePixelSize);
 
-
-
     QRectF rotHandleRect = rotationHandleRect();
     path.addEllipse(rotHandleRect);
-
-
     return path;
 }
 
@@ -145,7 +141,6 @@ void EnhancedLineItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     this->setCursor(Qt::ArrowCursor);
     QGraphicsLineItem::hoverLeaveEvent(event);
-
 }
 void EnhancedLineItem::drawHandle(QPainter *painter, const QPointF &pos, qreal size)
 {
@@ -196,9 +191,8 @@ bool EnhancedLineItem::isPostionOnRotationHandle(const QPointF &pos) const
 EnhancedLineItem::Handle EnhancedLineItem::handleAt(const QPointF &pos) const
 {
     const qreal handleRadius =8.0;
-    qDebug()<<"start length === "<< QLineF(this->line().p1(),pos).length();
-
-    qDebug()<<"???==="<<(QLineF(this->line().p1(),pos).length()<=handleRadius);
+    // qDebug()<<"start length === "<< QLineF(this->line().p1(),pos).length();
+    // qDebug()<<"???==="<<(QLineF(this->line().p1(),pos).length()<=handleRadius);
     if(QLineF(this->line().p1(),pos).length()<=handleRadius){
         return StartHandle;
     }else if(QLineF(this->line().p2(),pos).length()<=handleRadius){

@@ -1,4 +1,4 @@
-#include "graphtextitem.h"
+#include "enhancedtextitem.h"
 
 #include <QFont>
 #include <QPainter>

@@ -1,5 +1,5 @@
-#ifndef GRAPHTEXTITEM_H
-#define GRAPHTEXTITEM_H
+#ifndef ENHANCEDTEXTITEM_H
+#define ENHANCEDTEXTITEM_H
 
 #include <QGraphicsTextItem>
 class GraphTextItem : public QGraphicsTextItem
@@ -30,4 +30,4 @@ private:
     QString handleToString(GraphTextItem::HandlePosition handle);
 };
 
-#endif // GRAPHTEXTITEM_H
+#endif // ENHANCEDTEXTITEM_H

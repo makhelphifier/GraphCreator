@@ -388,7 +388,7 @@ void NewGraphWidget::initTreeWidget()
 
 #include <QGraphicsLineItem>
 #include <QPen>
-#include "graphtextitem.h"
+#include "enhancedtextitem.h"
 QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
 
     QStringList pathList;
@@ -401,6 +401,8 @@ QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
 }
 
 #include "enhancedlineitem.h"
+#include "enhancedpolylineitem.h"
+#include <QPainterPath>
 void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* scene)
 {
 
@@ -415,12 +417,20 @@ void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* 
     // scene->addItem(item);
     // scene->addItem(line);
 
-    GraphTextItem* text = new GraphTextItem("测试",nullptr);
+    // GraphTextItem* text = new GraphTextItem("测试",nullptr);
     // scene->addItem(text);
 
-    EnhancedLineItem* line = new EnhancedLineItem();
-    line->setLine(QLineF(QPointF(20,20),QPointF(100,100)));
-    scene->addItem(line);
+    // EnhancedLineItem* line = new EnhancedLineItem();
+    // line->setLine(QLineF(QPointF(20,20),QPointF(100,100)));
+    // scene->addItem(line);
+
+    EnhancedPolylineItem* polyline = new EnhancedPolylineItem();
+    QPainterPath path ;
+    path.moveTo(10,20);
+    path.lineTo(40,80);
+    path.lineTo(100,100);
+    polyline->setPath(path);
+    scene->addItem(polyline);
 
 }
 
