@@ -38,6 +38,7 @@ private:
     int m_draggedPointIndex = -1;
     QPointF m_startDragPos;
     QRectF m_orginalRect;
+    QPainterPath m_orginalPath;
 };
 
 #endif // ENHANCEDPOLYLINEITEM_H

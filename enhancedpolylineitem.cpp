@@ -29,6 +29,9 @@ void EnhancedPolylineItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         qDebug() << "Clicked Handle:" << handleToString(currentHandlePosition(event->pos()));
         m_activeHandle = currentHandlePosition(event->pos());
         if (m_activeHandle != None) {
+            m_orginalRect = this->path().boundingRect();
+            m_orginalPath = this->path();
+
             if(m_activeHandle == RotationHandle){
                 m_isRotating = true;
                 m_rotationCenter = (this->path().boundingRect().topLeft()+this->path().boundingRect().bottomRight())/2;
@@ -125,13 +128,13 @@ void EnhancedPolylineItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                 newRect.setLeft(currentPos.x());
                 break;
             case MiddleRight:
-                newRect.setLeft(currentPos.x());
+                newRect.setRight(currentPos.x());
                 break;
             case BottomLeft:
                 newRect.setBottomLeft(currentPos);
                 break;
             case BottomMiddle:
-                newRect.setTop(currentPos.y());
+                newRect.setBottom(currentPos.y());
                 break;
             case BottomRight:
                 newRect.setBottomRight(currentPos);
@@ -145,16 +148,21 @@ void EnhancedPolylineItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             default:
                 break;
             }
+            if(m_orginalRect.width()==0||m_orginalRect.height()==0){
+                event->accept();
+                return;
+            }
+
             qreal scaleX = newRect.width()/m_orginalRect.width();
             qreal scaleY = newRect.height()/m_orginalRect.height();
 
             QTransform transform ;
-            transform.translate( m_orginalRect.center().x(),m_orginalRect.center().y());  // 1. 将坐标系原点移动到旋转中心
+            transform.translate(newRect.left(),newRect.top());  // 1. 将原点移动到新矩形的左上角
             transform.scale(scaleX,scaleY);               // 2. 根据比例缩放
-            transform.translate(-m_orginalRect.center().x(),-m_orginalRect.center().y());// 3. 将坐标系原点移回
+             transform.translate(-newRect.left(),-newRect.top());// 3. 将坐标系原点移回
 
-            QPainterPath oldPath = QGraphicsPathItem::path();
-            QPainterPath path = transform.map(oldPath);
+            // QPainterPath oldPath = QGraphicsPathItem::path();
+            QPainterPath path = transform.map(m_orginalPath);
             this->setPath(path);
             event->accept();
         }
