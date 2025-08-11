@@ -403,6 +403,8 @@ QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
 #include "enhancedlineitem.h"
 #include "enhancedpolylineitem.h"
 #include <QPainterPath>
+#include "enhancedrectangleitem.h"
+
 void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* scene)
 {
 
@@ -424,13 +426,17 @@ void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* 
     // line->setLine(QLineF(QPointF(20,20),QPointF(100,100)));
     // scene->addItem(line);
 
-    EnhancedPolylineItem* polyline = new EnhancedPolylineItem();
-    QPainterPath path ;
-    path.moveTo(10,20);
-    path.lineTo(40,80);
-    path.lineTo(100,100);
-    polyline->setPath(path);
-    scene->addItem(polyline);
+    // EnhancedPolylineItem* polyline = new EnhancedPolylineItem();
+    // QPainterPath path ;
+    // path.moveTo(10,20);
+    // path.lineTo(40,80);
+    // path.lineTo(100,100);
+    // polyline->setPath(path);
+    // scene->addItem(polyline);
+
+    EnhancedRectangleItem* rec = new EnhancedRectangleItem();
+    rec->setRect(QRectF(QPointF(50,50),QSizeF(50,50)));
+    scene->addItem(rec);
 
 }
 
