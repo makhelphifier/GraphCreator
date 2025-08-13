@@ -9,6 +9,15 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QGraphicsRectItem>
+
+#include "enhancedlineitem.h"
+#include "enhancedpolylineitem.h"
+#include <QPainterPath>
+#include "enhancedrectangleitem.h"
+#include <QGraphicsLineItem>
+#include <QPen>
+#include "enhancedtextitem.h"
+#include "enhancedellipseitem.h"
 NewGraphWidget::NewGraphWidget(QWidget *parent)
     : QWidget{parent}
 {
@@ -385,10 +394,6 @@ void NewGraphWidget::initTreeWidget()
 
 }
 
-
-#include <QGraphicsLineItem>
-#include <QPen>
-#include "enhancedtextitem.h"
 QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
 
     QStringList pathList;
@@ -400,10 +405,7 @@ QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
     return pathList.join(QDir::separator());
 }
 
-#include "enhancedlineitem.h"
-#include "enhancedpolylineitem.h"
-#include <QPainterPath>
-#include "enhancedrectangleitem.h"
+
 
 void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* scene)
 {
@@ -434,9 +436,13 @@ void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* 
     // polyline->setPath(path);
     // scene->addItem(polyline);
 
-    EnhancedRectangleItem* rec = new EnhancedRectangleItem();
-    rec->setRect(QRectF(QPointF(50,50),QSizeF(50,50)));
-    scene->addItem(rec);
+    // EnhancedRectangleItem* rec = new EnhancedRectangleItem();
+    // rec->setRect(QRectF(QPointF(50,50),QSizeF(50,50)));
+    // scene->addItem(rec);
 
+
+    EnhancedEllipseItem* ellipse = new EnhancedEllipseItem();
+    ellipse->setRect(QRectF(QPointF(50,50),QSizeF(50,50)));
+    scene->addItem(ellipse);
 }
 
