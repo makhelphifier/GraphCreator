@@ -18,6 +18,8 @@
 #include <QPen>
 #include "enhancedtextitem.h"
 #include "enhancedellipseitem.h"
+#include "enhancedarcitem.h"
+
 NewGraphWidget::NewGraphWidget(QWidget *parent)
     : QWidget{parent}
 {
@@ -441,8 +443,13 @@ void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* 
     // scene->addItem(rec);
 
 
-    EnhancedEllipseItem* ellipse = new EnhancedEllipseItem();
-    ellipse->setRect(QRectF(QPointF(50,50),QSizeF(50,50)));
-    scene->addItem(ellipse);
+    // EnhancedEllipseItem* ellipse = new EnhancedEllipseItem();
+    // ellipse->setRect(QRectF(QPointF(50,50),QSizeF(50,50)));
+    // scene->addItem(ellipse);
+
+    EnhancedArcItem* arc= new EnhancedArcItem();
+    //    我们给它设置一个位置和大小
+    scene->addItem(arc);
+
 }
 

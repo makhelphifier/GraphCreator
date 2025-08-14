@@ -28,7 +28,7 @@ void EnhancedEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     QGraphicsEllipseItem::paint(painter,&tempOption,widget);
 
     if(option->state&QStyle::State_Selected){
-        QRectF boundRect = this->boundingRect();
+        QRectF boundRect = this->rect();
         QPen selectionBoxPen(Qt::black,1,Qt::DotLine);
         painter->setPen(selectionBoxPen);
         painter->setBrush(Qt::NoBrush);
@@ -48,7 +48,8 @@ void EnhancedEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
         }else if(m_isRotating) {
             drawRotationHandle(painter,m_rotationCenter);
         }
-    }}
+    }
+}
 
 QPainterPath EnhancedEllipseItem::shape() const
 {
@@ -58,14 +59,14 @@ QPainterPath EnhancedEllipseItem::shape() const
     stroker.setWidth(5);
     stroker.setCapStyle(Qt::FlatCap);
 
-    path.addRect(this->boundingRect());
+    path.addRect(this->rect());
     const qreal handlePixelSize = 4;
 
     QRectF rotHandleRect = rotationHandleRect();
     path.addEllipse(rotHandleRect);
     qreal handleSize = 4;
     qreal halfSize= handleSize/2;
-    QRectF pathBound  = this->boundingRect();
+    QRectF pathBound  = this->rect();
     path.addRect(QRect(pathBound.topLeft().x()-halfSize,pathBound.topLeft().y()-halfSize,handleSize,handleSize));
     path.addRect(QRect(pathBound.topRight().x()-halfSize,pathBound.topRight().y()-halfSize,handleSize,handleSize));
     path.addRect(QRect(pathBound.bottomLeft().x()-halfSize,pathBound.bottomLeft().y()-halfSize,handleSize,handleSize));
@@ -85,10 +86,10 @@ void EnhancedEllipseItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         qDebug() << "Clicked Handle:" << handleToString(currentHandlePosition(event->pos()));
         m_activeHandle = currentHandlePosition(event->pos());
         if (m_activeHandle != None) {
-            m_orginalRect = this->boundingRect();
+            m_orginalRect = this->rect();
             if(m_activeHandle == RotationHandle){
                 m_isRotating = true;
-                m_rotationCenter = (this->boundingRect().topLeft()+this->boundingRect().bottomRight())/2;
+                m_rotationCenter = (this->rect().topLeft()+this->rect().bottomRight())/2;
                 setCursor(Qt::CrossCursor);
                 event->accept();
                 qDebug() << "Rotation mode activated. Event accepted. Returning.";
@@ -100,7 +101,7 @@ void EnhancedEllipseItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 return;
             }else{
                 m_startDragPos = event->pos();
-                m_orginalRect = this->boundingRect();
+                m_orginalRect = this->rect();
                 setCursor(Qt::CrossCursor);
                 event->accept();
                 qDebug() << "Dragging mode activated. Event accepted. Returning.";
@@ -117,19 +118,17 @@ void EnhancedEllipseItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if(m_activeHandle!=None){
         if(m_activeHandle == RotationHandle){
-            QPointF recTopLeft = this->boundingRect().topLeft();
-            QPointF recBottomRight = this->boundingRect().bottomRight();
             QPointF center = m_rotationCenter;
             QLineF lineToLastPos(center,event->lastPos());
             QLineF lineToCurrentPos(center,event->pos());
-            qreal angelDelta = lineToLastPos.angleTo(lineToCurrentPos);
-            QTransform transform ;
-            transform.translate(center.x(),center.y());  // 1. 将坐标系原点移动到旋转中心
-            transform.rotate(-angelDelta);               // 2. 旋转（Qt的angle是逆时针为正，所以用负号）
-            transform.translate(-center.x(),-center.y());// 3. 将坐标系原点移回
-            QPointF newRecTopLeft = transform.map(recTopLeft);
-            QPointF newRecBottomRight = transform.map(recBottomRight);
-            this->setRect(QRectF(newRecTopLeft,newRecBottomRight));
+            qreal angelDelta = - lineToLastPos.angleTo(lineToCurrentPos);
+            // 2. 设置旋转中心点
+            //    这个函数指定了旋转和缩放变换的原点。
+            this->setTransformOriginPoint(m_rotationCenter);
+            // 3. 更新总的旋转角度
+            //    获取当前的旋转角度，并累加上这次鼠标移动产生的角度变化量。
+            //    QLineF::angleTo 和 QGraphicsItem::rotation 都遵循逆时针为正方向的规则，所以直接相加。
+            this->setRotation(this->rotation() + angelDelta);
             event->accept();
         } else{
             QPointF currentPos = event->pos();
@@ -172,18 +171,14 @@ void EnhancedEllipseItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                 event->accept();
                 return;
             }
-
             qreal scaleX = newRect.width()/m_orginalRect.width();
             qreal scaleY = newRect.height()/m_orginalRect.height();
-
             QTransform transform ;
             transform.translate(newRect.left(),newRect.top());  // 1. 将原点移动到新矩形的左上角
             transform.scale(scaleX,scaleY);               // 2. 根据比例缩放
             transform.translate(-newRect.left(),-newRect.top());// 3. 将坐标系原点移回
-
-            // QPainterPath oldPath = QGraphicsPathItem::path();
-            // QPainterPath path = transform.map(m_orginalPath);
-            // this->setPath(path);
+            QRectF newRect2 = transform.mapRect(m_orginalRect);
+            this->setRect(newRect2);
             event->accept();
         }
     }else{
@@ -238,7 +233,7 @@ void EnhancedEllipseItem::drawHandle(QPainter *painter, const QPointF &pos, qrea
 EnhancedEllipseItem::HandlePosition EnhancedEllipseItem::currentHandlePosition(const QPointF &pos)
 {
     qreal handleSize = 2;
-    QRectF boundRect = this->boundingRect();
+    QRectF boundRect = this->rect();
     QPointF handles[] = {
         boundRect.topLeft(), boundRect.topRight(), boundRect.bottomLeft(), boundRect.bottomRight(),
         boundRect.center() + QPointF(0, -boundRect.height() / 2), // top
@@ -290,7 +285,7 @@ QString EnhancedEllipseItem::handleToString(HandlePosition handle)
 QRectF EnhancedEllipseItem::rotationHandleRect() const
 {
 
-    QRectF pathBound  = this->boundingRect();
+    QRectF pathBound  = this->rect();
     QPointF direction =  pathBound .topRight() -  pathBound .topLeft();
     QPointF normalVector = QPointF(-direction.y(), direction.x());
     qreal length = std::sqrt(QPointF::dotProduct(normalVector, normalVector));
