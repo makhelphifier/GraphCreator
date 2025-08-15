@@ -29,7 +29,7 @@ private:
         RotationHandle,
         PolylineHandle
     };
-    EnhancedRectangleItem::HandlePosition handleAt(const QPointF &pos);
+    EnhancedRectangleItem::HandlePosition currentHandlePosition(const QPointF &pos);
     HandlePosition m_activeHandle;
 
     QString handleToString(EnhancedRectangleItem::HandlePosition handle);

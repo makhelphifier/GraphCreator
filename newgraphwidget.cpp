@@ -448,7 +448,6 @@ void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* 
     // scene->addItem(ellipse);
 
     EnhancedArcItem* arc= new EnhancedArcItem();
-    //    我们给它设置一个位置和大小
     scene->addItem(arc);
 
 }
