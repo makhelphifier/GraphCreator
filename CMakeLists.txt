@@ -34,6 +34,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         enhancedellipseitem.h enhancedellipseitem.cpp
         enhancedpolygonitem.h enhancedpolygonitem.cpp
         enhancedarcitem.h enhancedarcitem.cpp
+        enhancedpieitem.h enhancedpieitem.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET GraphCreator APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

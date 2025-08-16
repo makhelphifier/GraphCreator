@@ -19,6 +19,8 @@
 #include "enhancedtextitem.h"
 #include "enhancedellipseitem.h"
 #include "enhancedarcitem.h"
+#include "enhancedpieitem.h"
+#include "enhancedpolygonitem.h"
 
 NewGraphWidget::NewGraphWidget(QWidget *parent)
     : QWidget{parent}
@@ -447,8 +449,35 @@ void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* 
     // ellipse->setRect(QRectF(QPointF(50,50),QSizeF(50,50)));
     // scene->addItem(ellipse);
 
-    EnhancedArcItem* arc= new EnhancedArcItem();
-    scene->addItem(arc);
+    // EnhancedArcItem* arc= new EnhancedArcItem();
+    // scene->addItem(arc);
+
+    // 2. 定义三个点 (场景坐标)
+    QPointF center(50, 50);
+    QPointF startPoint(250, 50);       // 3点钟方向
+    QPointF endPoint(150, -173.2+50);    // 11点钟方向 (cos(300), sin(300))
+
+    // 3. 创建我们的自定义 PieItem
+    EnhancedArcItem *pie = new EnhancedArcItem(center, startPoint, endPoint);
+
+    // 4. 将 item 添加到场景中
+    scene->addItem(pie);
+
+
+    // 创建一个简单的三角形路径
+    // QPainterPath path;
+    // path.moveTo(0, 0);           // 起点
+    // path.lineTo(100, 0);         // 第二个点
+    // path.lineTo(50, 100);        // 第三个点
+    // path.lineTo(100, 100);        // 第三个点
+    // path.closeSubpath();         // 闭合路径，形成三角形
+
+    // // 创建 EnhancedPolygonItem 并设置路径
+    // EnhancedPolygonItem *polygon = new EnhancedPolygonItem();
+    // polygon->setPath(path);
+
+    // // 将 EnhancedPolygonItem 添加到场景
+    // scene->addItem(polygon);
 
 }
 
