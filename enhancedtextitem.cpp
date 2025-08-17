@@ -7,7 +7,7 @@
 #include <QTextCursor>
 
 
-GraphTextItem::GraphTextItem(const QString &text, QGraphicsItem *parent)
+EnhancedTextItem::EnhancedTextItem(const QString &text, QGraphicsItem *parent)
 {
     this->setDefaultTextColor(Qt::red);
     this->setFont(QFont("Arial",12));
@@ -16,7 +16,7 @@ GraphTextItem::GraphTextItem(const QString &text, QGraphicsItem *parent)
     this->setTextInteractionFlags(Qt::NoTextInteraction);
     this->update();
 }
-void GraphTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void EnhancedTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QStyleOptionGraphicsItem tempOption(*option);
     // qDebug()<<tempOption.state<<"====before";
@@ -46,7 +46,7 @@ void GraphTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     }
 }
 
-void GraphTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+void EnhancedTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     if(event->button()==Qt::LeftButton){
         this->setTextInteractionFlags(Qt::TextEditorInteraction);
@@ -62,7 +62,7 @@ void GraphTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void GraphTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void EnhancedTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 
     if(event->button()==Qt::LeftButton){
@@ -81,7 +81,7 @@ void GraphTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 }
 
 
-void GraphTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void EnhancedTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     // 只有在拖动手柄时才处理
     if (m_activeHandle != None) {
@@ -138,14 +138,14 @@ void GraphTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void GraphTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void EnhancedTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     m_activeHandle = None;
     QGraphicsTextItem::mouseReleaseEvent(event);
 
 }
 
-void GraphTextItem::focusOutEvent(QFocusEvent *event)
+void EnhancedTextItem::focusOutEvent(QFocusEvent *event)
 {
     this->setFlags(this->flags()|QGraphicsItem::ItemIsMovable);
     this->setTextInteractionFlags(Qt::NoTextInteraction);
@@ -154,7 +154,7 @@ void GraphTextItem::focusOutEvent(QFocusEvent *event)
 }
 
 
-void GraphTextItem::drawHandle(QPainter *painter, const QPointF &pos, qreal size)
+void EnhancedTextItem::drawHandle(QPainter *painter, const QPointF &pos, qreal size)
 {
     qreal halfSize = size /2.0;
     painter->setPen(QPen(Qt::black,1));
@@ -163,7 +163,7 @@ void GraphTextItem::drawHandle(QPainter *painter, const QPointF &pos, qreal size
     // painter->drawPoint(pos);
 }
 
-GraphTextItem::HandlePosition GraphTextItem::currentHandlePosition(const QPointF &pos)
+EnhancedTextItem::HandlePosition EnhancedTextItem::currentHandlePosition(const QPointF &pos)
 {
     qreal handleSize = 4;
     QRectF boundRect = this->boundingRect();
@@ -195,18 +195,18 @@ GraphTextItem::HandlePosition GraphTextItem::currentHandlePosition(const QPointF
     }
     return None;
 }
-QString GraphTextItem::handleToString(GraphTextItem::HandlePosition handle)
+QString EnhancedTextItem::handleToString(EnhancedTextItem::HandlePosition handle)
 {
     switch (handle) {
-    case GraphTextItem::None: return "None";
-    case GraphTextItem::TopLeft: return "TopLeft";
-    case GraphTextItem::TopMiddle: return "TopMiddle";
-    case GraphTextItem::TopRight: return "TopRight";
-    case GraphTextItem::MiddleLeft: return "MiddleLeft";
-    case GraphTextItem::MiddleRight: return "MiddleRight";
-    case GraphTextItem::BottomLeft: return "BottomLeft";
-    case GraphTextItem::BottomMiddle: return "BottomMiddle";
-    case GraphTextItem::BottomRight: return "BottomRight";
+    case EnhancedTextItem::None: return "None";
+    case EnhancedTextItem::TopLeft: return "TopLeft";
+    case EnhancedTextItem::TopMiddle: return "TopMiddle";
+    case EnhancedTextItem::TopRight: return "TopRight";
+    case EnhancedTextItem::MiddleLeft: return "MiddleLeft";
+    case EnhancedTextItem::MiddleRight: return "MiddleRight";
+    case EnhancedTextItem::BottomLeft: return "BottomLeft";
+    case EnhancedTextItem::BottomMiddle: return "BottomMiddle";
+    case EnhancedTextItem::BottomRight: return "BottomRight";
     default: return "Unknown";
     }
 }

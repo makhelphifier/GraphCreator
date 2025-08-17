@@ -2,11 +2,11 @@
 #define ENHANCEDTEXTITEM_H
 
 #include <QGraphicsTextItem>
-class GraphTextItem : public QGraphicsTextItem
+class EnhancedTextItem : public QGraphicsTextItem
 {
     Q_OBJECT
 public:
-    explicit GraphTextItem(const QString &text,QGraphicsItem* parent= nullptr);
+    explicit EnhancedTextItem(const QString &text,QGraphicsItem* parent= nullptr);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 protected:
@@ -27,7 +27,7 @@ private:
     };
     HandlePosition m_activeHandle = None;
     HandlePosition currentHandlePosition(const QPointF &currentPos);
-    QString handleToString(GraphTextItem::HandlePosition handle);
+    QString handleToString(EnhancedTextItem::HandlePosition handle);
 };
 
 #endif // ENHANCEDTEXTITEM_H

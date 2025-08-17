@@ -23,7 +23,6 @@ GraphMenuBuilder::GraphMenuBuilder(QMainWindow *parent)
 
 QMenuBar *GraphMenuBuilder::buildMenuBar()
 {
-
     return m_menuBar;
 }
 
@@ -87,11 +86,7 @@ void GraphMenuBuilder::createMenus()
     QMenu* helpMenu = m_menuBar->addMenu("帮助(&H)");
     helpMenu->addAction("关于",this,&GraphMenuBuilder::on_actionAbout_triggered);
     helpMenu->addAction("更新日志...",this,&GraphMenuBuilder::on_actionChangelog_triggered);
-
-
-
 }
-
 
 void GraphMenuBuilder::on_actionUndo_triggered(){}
 void GraphMenuBuilder::on_actionRedo_triggered(){}
@@ -102,7 +97,6 @@ void GraphMenuBuilder::on_actionDelete_triggered(){}
 void GraphMenuBuilder::on_actionSelectAll_triggered(){}
 void GraphMenuBuilder::on_actionFindReplace_triggered(){}
 void GraphMenuBuilder::on_actionConfigurePreview_triggered(){
-
     m_previewConfigurationDialog = new PreviewConfigurationDialog(m_parentWindow);
     m_previewConfigurationDialog->show();
 }
@@ -128,39 +122,28 @@ void GraphMenuBuilder::on_actionAbout_triggered() { }
 void GraphMenuBuilder::on_actionChangelog_triggered() { }
 
 void GraphMenuBuilder::onPrintGraphTriggered(bool checked ){
-
     QPrinter printer(QPrinter::HighResolution);
     QPrintPreviewDialog previewDialog(&printer,m_parentWindow);
-
     connect(&previewDialog,&QPrintPreviewDialog::paintRequested,this,&GraphMenuBuilder::printGraph);
     previewDialog.exec();
-
-
 }
-
-
 
 void GraphMenuBuilder::onPageSetupGraphTriggered(){
     m_pageSetupDialog = new PageSetupDialog(m_parentWindow);
     m_pageSetupDialog->show();
-
 }
 void GraphMenuBuilder::printGraph(){
 
 }
 void GraphMenuBuilder::onExportGraphTriggered(bool checked ){
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"IMPORT");
-
     qDebug()<<"onExportGraphTriggered ";
     QString filePath = QFileDialog::getSaveFileName(m_parentWindow,"导出图","","Web展示文件(*.nut);;Svg 文件(*.svg);;Xml 文件(*.xml)");
     QFile file(filePath);
     if(file.open(QIODevice::WriteOnly)|QIODevice::Text){
         file.close();
         m_newGraphWidget->writeSceneIntoFile(filePath);
-
     }
-
-
 }
 
 void GraphMenuBuilder::createGraphActions()
@@ -169,36 +152,25 @@ void GraphMenuBuilder::createGraphActions()
 }
 
 void GraphMenuBuilder::onNewGraphTriggered(bool checked ){
-
     qDebug()<<"onNewGraphTriggered ";
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"NEW");
     m_newGraphWidget->show();
-
 }
 
-
 void GraphMenuBuilder::onOpenGraphTriggered(bool checked ){
-
     qDebug()<<"onOpenGraphTriggered ";
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"OPEN");
     m_newGraphWidget->show();
-
 }
 
-
 void GraphMenuBuilder::onImportGraphTriggered(bool checked ){
-
     qDebug()<<"onImportGraphTriggered ";
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"IMPORT");
     m_newGraphWidget->show();
-
 }
 
-
 void GraphMenuBuilder::onManagerGraphTriggered(bool checked ){
-
     qDebug()<<"onManagerGraphTriggered ";
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"MANAGER");
     m_newGraphWidget->show();
-
 }

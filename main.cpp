@@ -3,6 +3,7 @@
 #include <QApplication>
 #include "graphmenubuilder.h"
 #include "newgraphwidget.h"
+#include "graphtoolbarbuilder.h"
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -11,7 +12,9 @@ int main(int argc, char *argv[])
     w.setFixedSize(1200,800);
 
     GraphMenuBuilder menuBuilder(&w);
+
     w.setMenuBar(menuBuilder.buildMenuBar());
+
     w.show();
 
     // menuBuilder.onNewGraphTriggered(true);
