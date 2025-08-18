@@ -292,56 +292,115 @@ bool MainWindow::eventFilter(QObject* watched,QEvent* event){
                 return true;
             }
         }
-        else  if(m_currentMode == DrawArc){
+        else if(m_currentMode == DrawArc){
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
             if(event->type() == QEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton){
-                qDebug() << "控件坐标:" << mouseEvent->pos() << "场景坐标:" << m_view->mapToScene(mouseEvent->pos());
                 QPointF scenePos = m_view->mapToScene(mouseEvent->pos());
-                if(m_currentLineItem == nullptr && m_currentArcItem ==nullptr ){
+
+                // 第一次点击: 定义圆心，开始预览半径线
+                if(m_currentLineItem == nullptr && m_currentArcItem == nullptr){
                     m_startPoint = scenePos;
                     m_currentLineItem = new EnhancedLineItem();
-                    // m_currentLineItem->setPos(m_startPoint);
                     m_currentLineItem->setLine(QLineF( m_startPoint,m_startPoint));
                     QPen pen = m_currentLineItem->pen();
                     pen.setStyle(Qt::DotLine);
                     pen.setWidth(1);
                     m_currentLineItem->setPen(pen);
-                    m_currentLineItem->setVisible(false);
                     m_scene->addItem(m_currentLineItem);
                     qDebug()<<"第一次点击";
-                }else if(m_currentLineItem != nullptr && m_currentArcItem ==nullptr) {
-                    m_currentLineItem->setVisible(true);
-                    m_currentLineItem->setLine(QLineF(m_startPoint,scenePos));
-                    m_currentArcItem = new EnhancedArcItem();
-                    m_currentArcItem->setVisible(false);
+                }
+                // 第二次点击: 定义半径和起点，开始预览圆弧
+                else if(m_currentLineItem != nullptr && m_currentArcItem == nullptr) {
+                    m_currentLineItem->setLine(QLineF(m_startPoint, scenePos)); // 确定半径线
+                    m_currentLineItem->setVisible(false); // 隐藏半径线
+
+                    // 创建一个初始的、零长度的圆弧用于预览
+                    m_currentArcItem = new EnhancedArcItem(m_startPoint, scenePos, scenePos);
                     m_scene->addItem(m_currentArcItem);
                     qDebug()<<"第二次点击";
-                }else if(m_currentLineItem != nullptr && m_currentArcItem !=nullptr){
-                    m_currentLineItem->setVisible(true);
-                    m_currentArcItem->setVisible(false);
-                    m_currentArcItem = new EnhancedArcItem(m_currentLineItem->line().p1(),m_currentLineItem->line().p2(),scenePos);
-
+                }
+                // 第三次点击: 完成绘制
+                else if(m_currentLineItem != nullptr && m_currentArcItem != nullptr){
+                    // 最终的圆弧已在上次MouseMove中创建好，只需清理辅助对象和状态
+                    m_scene->removeItem(m_currentLineItem);
+                    delete m_currentLineItem;
                     m_currentLineItem = nullptr;
-                    m_currentArcItem = nullptr;
+
+                    m_currentArcItem->setSelected(false); // 完成后取消选中
+                    m_currentArcItem = nullptr; // 释放对该Item的控制，让它留在场景中
+
                     m_currentMode = NoMode;
                     m_view->setDragMode(QGraphicsView::RubberBandDrag);
                     m_view->viewport()->setCursor(Qt::ArrowCursor);
                     qDebug()<<"第三次点击";
                 }
                 return true;
-            }else if(event->type() == QEvent::MouseMove) {
-                if(m_currentLineItem!=nullptr && m_currentArcItem ==nullptr){
-                    // qDebug()<<"第一次点击后，鼠标move移动";
-                    QPointF scenePos = m_view->mapToScene(mouseEvent->pos());
+            }
+            else if(event->type() == QEvent::MouseMove) {
+                QPointF scenePos = m_view->mapToScene(mouseEvent->pos());
+
+                // 第一次点击后移动: 预览半径
+                if(m_currentLineItem != nullptr && m_currentArcItem == nullptr){
                     m_currentLineItem->setLine(QLineF(m_startPoint, scenePos));
                     m_currentLineItem->setVisible(true);
-                }else if(m_currentLineItem!=nullptr && m_currentArcItem !=nullptr){
-                    qDebug()<<"第二次点击后，鼠标move移动";
-                    QPointF scenePos = m_view->mapToScene(mouseEvent->pos());
-                    m_currentArcItem = new EnhancedArcItem(m_currentLineItem->line().p1(),m_currentLineItem->line().p2(),scenePos);
-                    m_currentArcItem->setVisible(false);
-                    m_currentLineItem->setVisible(true);
                 }
+                // 第二次点击后移动: 预览圆弧
+                else if(m_currentLineItem != nullptr && m_currentArcItem != nullptr){
+                    // 移除旧的预览圆弧
+                    if (m_currentArcItem) {
+                        m_scene->removeItem(m_currentArcItem);
+                        delete m_currentArcItem;
+                    }
+                    // 创建新的预览圆弧并添加到场景
+                    m_currentArcItem = new EnhancedArcItem(m_currentLineItem->line().p1(), m_currentLineItem->line().p2(), scenePos);
+                    m_scene->addItem(m_currentArcItem);
+                }
+                return true;
+            }
+        }
+        else if (m_currentMode == DrawPolygon) {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+            if (event->type() == QEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton) {
+                QPointF scenePos = m_view->mapToScene(mouseEvent->pos());
+                if (m_currentPolygonItem == nullptr) {
+                    // 第一次点击：创建路径和item
+                    m_polygonPath = new QPainterPath(scenePos); // 直接用起始点构造路径
+                    m_currentPolygonItem = new EnhancedPolygonItem();
+                    m_currentPolygonItem->setPath(*m_polygonPath);
+                    m_scene->addItem(m_currentPolygonItem);
+                    qDebug() << "第一次点击";
+                } else {
+                    // 后续点击：在路径中添加一个确定的点
+                    m_polygonPath->lineTo(scenePos);
+                    QPainterPath previewPath = *m_polygonPath; // 复制当前已确定的路径
+                    previewPath.lineTo(scenePos); // 添加到当前鼠标位置的临时线段
+                    previewPath.closeSubpath();
+                    m_currentPolygonItem->setPath(previewPath);
+                    qDebug() << "后续点击，添加点";
+                }
+                return true;
+            } else if (event->type() == QEvent::MouseMove) {
+                if (m_currentPolygonItem != nullptr) {
+                    // 鼠标移动：绘制预览线
+                    QPointF scenePos = m_view->mapToScene(mouseEvent->pos());
+                    QPainterPath previewPath = *m_polygonPath; // 复制当前已确定的路径
+                    previewPath.lineTo(scenePos); // 添加到当前鼠标位置的临时线段
+                    previewPath.closeSubpath();
+                    m_currentPolygonItem->setPath(previewPath); // 更新Item显示预览路径
+                }
+                return true;
+            } else if (event->type() == QEvent::MouseButtonDblClick) {
+                qDebug() << "鼠标双击，结束绘制";
+                if(m_currentPolygonItem != nullptr) {
+                    m_polygonPath->closeSubpath();
+                    m_currentPolygonItem->setPath(*m_polygonPath);
+                }
+                m_currentPolygonItem = nullptr;
+                delete m_polygonPath;
+                m_polygonPath = nullptr;
+                m_currentMode = NoMode;
+                m_view->setDragMode(QGraphicsView::RubberBandDrag);
+                m_view->viewport()->setCursor(Qt::ArrowCursor);
                 return true;
             }
         }
@@ -354,15 +413,8 @@ bool MainWindow::eventFilter(QObject* watched,QEvent* event){
 void MainWindow::removeLastPointFromPath(QPainterPath &path)
 {
     if(path.isEmpty())  return;
-
     int elementCount = path.elementCount();
-    // if(elementCount<=1){
-    //     path =*( new QPainterPath());
-    //     return;
-    // }
-
     QPainterPath newPath;
-
     for(int i =0;i<elementCount-1;i++){
         const QPainterPath::Element &element = path.elementAt(i);
         switch (element.type){

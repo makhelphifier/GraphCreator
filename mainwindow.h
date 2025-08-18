@@ -11,6 +11,7 @@ class EnhancedPolylineItem;
 class EnhancedRectangleItem;
 class EnhancedEllipseItem;
 class EnhancedArcItem;
+class EnhancedPolygonItem;
 
 
 class MainWindow : public QMainWindow
@@ -49,6 +50,7 @@ private:
     QPointF m_startPoint;
     QPointF m_EndPoint;
     QPainterPath* m_polylinePath = nullptr;
+    QPainterPath* m_polygonPath = nullptr;
     QVector<QPointF>* m_polyPointList = new QVector<QPointF>;
     EnhancedTextItem* m_currentItem = nullptr;
     EnhancedLineItem* m_currentLineItem = nullptr;
@@ -56,6 +58,7 @@ private:
     EnhancedRectangleItem* m_currentRectangleItem = nullptr;
     EnhancedEllipseItem* m_currentEllipseItem = nullptr;
     EnhancedArcItem* m_currentArcItem = nullptr;
+    EnhancedPolygonItem* m_currentPolygonItem = nullptr;
     void removeLastPointFromPath(QPainterPath &path);
 };
 #endif // MAINWINDOW_H

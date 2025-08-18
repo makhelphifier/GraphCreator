@@ -45,7 +45,7 @@ EnhancedArcItem::EnhancedArcItem(const QPointF &center, const QPointF &startPoin
     QPainterPath piePath;
     piePath.moveTo(m_center);
     piePath.lineTo(m_startPoint);  // 先到起点
-    piePath.arcTo(fullCircleRect, startAngleDeg, -spanAngleDeg);  // 弧（负值为顺时针）
+    piePath.arcTo( fullCircleRect, startAngleDeg, spanAngleDeg);  // 弧（负值为顺时针）
     piePath.lineTo(m_center);  // 回中心（显式闭合，避免 duplicate 问题）
     setPath(piePath);
     m_boundingRect = piePath.boundingRect();
