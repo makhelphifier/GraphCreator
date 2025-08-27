@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QToolBar>
+#include <QColor>
+#include <QEvent>
+#include <QPushButton>
+
 
 class GraphToolBarBuilder : public QObject
 {
@@ -11,10 +15,18 @@ public:
     explicit GraphToolBarBuilder(QMainWindow *parent = nullptr);
 
     QToolBar* buildToolBar();
+protected:
+    bool eventFilter(QObject* watched,QEvent* event) override  ;
 private:
     QMainWindow* m_parentWindow;
     QToolBar* m_toolBar;
     void createMenus();
+    void createPenMenu();
+
+    void createFillColorMenu();
+    bool m_isPickingColor;
+    QList<QPushButton* > m_customColorButtons;
+    int m_customColorIndex;
 public slots:
     void onTextTriggered();
     void onLineTriggered();
@@ -24,6 +36,9 @@ public slots:
     void onArcTriggered();
     void onPolygonTriggered();
 
+private slots:
+    void onPickColorTriggered();
+
 signals:
     void textToolTriggered();
     void lineToolTriggered();
@@ -32,6 +47,7 @@ signals:
     void eclipseToolTriggered();
     void arcToolTriggered();
     void polygonToolTriggered();
+    void penColorChanged(const QColor& color);
 
 };
 
