@@ -7,6 +7,7 @@
 #include <QHBoxLayout>
 #include <QFileDialog>
 #include <QPixmap>
+#include <QPainter>
 
 FillEffectDialog::FillEffectDialog(QWidget *parent)
     : QDialog(parent)
@@ -76,8 +77,58 @@ void FillEffectDialog::setupUi()
     connect(m_selectImageButton, &QPushButton::clicked, this, &FillEffectDialog::onSelectImageClicked);
     connect(m_okButton, &QPushButton::clicked, this, &QDialog::accept); // 连接到accept()槽
     connect(m_cancelButton, &QPushButton::clicked, this, &QDialog::reject); // 连接到reject()槽
+
+    connect(m_drawModeComboBox, &QComboBox::currentIndexChanged, this, &FillEffectDialog::onDrawModeChanged);
+
 }
 
+void FillEffectDialog::onDrawModeChanged()
+{
+    updateExamplePreview();
+}
+
+void FillEffectDialog::updateExamplePreview()
+{
+    // 如果没有加载图片，则不执行任何操作
+    if (m_originalPixmap.isNull()) {
+        return;
+    }
+
+    int mode = m_drawModeComboBox->currentIndex();
+    QSize targetSize = m_examplePreviewLabel->size();
+    QPixmap finalPixmap;
+
+    switch (mode) {
+    // 模式 0: 居中等比拉伸
+    case 0: {
+        finalPixmap = m_originalPixmap.scaled(targetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        break;
+    }
+
+        // 模式 1: 无拉伸 (将原图绘制在新 QPixmap 的中央)
+    case 1: {
+        // 创建一个和目标控件一样大的新 QPixmap，并用浅灰色填充背景
+        finalPixmap = QPixmap(targetSize);
+        finalPixmap.fill(Qt::lightGray);
+
+        // 使用 QPainter 将原始图片绘制到新 QPixmap 的中央
+        QPainter painter(&finalPixmap);
+        int x = (targetSize.width() - m_originalPixmap.width()) / 2;
+        int y = (targetSize.height() - m_originalPixmap.height()) / 2;
+        painter.drawPixmap(x, y, m_originalPixmap);
+        break;
+    }
+
+        // 模式 2: 拉伸以填满
+    case 2: {
+        finalPixmap = m_originalPixmap.scaled(targetSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        break;
+    }
+    }
+
+    // 将最终处理好的 QPixmap 设置到示例标签上
+    m_examplePreviewLabel->setPixmap(finalPixmap);
+}
 
 void FillEffectDialog::onSelectImageClicked()
 {
@@ -88,11 +139,13 @@ void FillEffectDialog::onSelectImageClicked()
         m_selectedImagePath = filePath;
         QPixmap pixmap(filePath);
 
+        m_originalPixmap.load(filePath);
         // 更新大的预览图 (按比例缩放以适应标签大小)
         m_imagePreviewLabel->setPixmap(pixmap.scaled(m_imagePreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
         // 更新右下角的示例图
-        m_examplePreviewLabel->setPixmap(pixmap.scaled(m_examplePreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        // m_examplePreviewLabel->setPixmap(pixmap.scaled(m_examplePreviewLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        updateExamplePreview();
     }
 }
 

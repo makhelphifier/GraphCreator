@@ -22,12 +22,12 @@ public:
     int getDrawMode() const; // 0: 无拉伸, 1: 拉伸以填满, 2: 居中等比拉伸
 
 private slots:
-    // "选择图片"按钮的槽函数
     void onSelectImageClicked();
+    void onDrawModeChanged();
 
 private:
     void setupUi(); // 初始化UI界面
-
+    void updateExamplePreview();
     QLabel *m_imagePreviewLabel;      // 大的图片预览框
     QLabel *m_examplePreviewLabel;    // 右下角的示例预览框
     QPushButton *m_selectImageButton; // 选择图片按钮
@@ -36,6 +36,7 @@ private:
     QPushButton *m_cancelButton;      // 取消按钮
 
     QString m_selectedImagePath;      // 保存用户选择的图片路径
+    QPixmap m_originalPixmap;
 };
 
 #endif // FILLEFFECTDIALOG_H
