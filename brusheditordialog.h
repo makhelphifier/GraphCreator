@@ -100,6 +100,11 @@ private:
     QButtonGroup *m_radialPresetGroup; // 用于管理放射渐变的三个预设按钮
     QLabel* m_previewButton;
 
+    QGroupBox *m_color1Group;
+    QGroupBox *m_color2Group;
+    QGroupBox *m_gradientGroup;
+    QGroupBox *m_radialGroup;
+
 };
 
 #endif // BRUSHEDITORDIALOG_H

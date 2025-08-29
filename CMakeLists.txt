@@ -37,6 +37,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         enhancedpieitem.h enhancedpieitem.cpp
         graphtoolbarbuilder.h graphtoolbarbuilder.cpp
         brusheditordialog.h brusheditordialog.cpp
+        filleffectdialog.h filleffectdialog.cpp
 
 
     )

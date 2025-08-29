@@ -10,6 +10,7 @@
 #include <QMouseEvent>
 #include <QApplication>
 #include "brusheditordialog.h"
+#include "filleffectdialog.h"
 
 GraphToolBarBuilder::GraphToolBarBuilder(QMainWindow *parent)
 
@@ -141,27 +142,22 @@ void GraphToolBarBuilder::createFillColorMenu()
     fillColorMenu->addAction(colorGridAction);
     fillColorMenu->addSeparator();
 
-
-    // 找到这一行
     QAction* otherColorAction  = fillColorMenu->addAction("其他填充颜色");
 
-    // 把它的 connect 调用从 QColorDialog 改成我们的新对话框
     connect(otherColorAction, &QAction::triggered, this, [=](){
-        // 创建我们的画刷编辑器对话框
         BrushEditorDialog dialog(m_parentWindow);
-
         // 以模态方式显示对话框，并判断用户是否点击了“确定”
         if (dialog.exec() == QDialog::Accepted) {
             // 如果用户点了“确定”，就获取配置好的画刷
             QBrush selectedBrush = dialog.getBrush();
-
             // TODO: 发射一个携带QBrush的新信号，通知主窗口填充画刷已改变
             qDebug() << "新的画刷已选择!";
             // 比如: emit fillColorChanged(selectedBrush);
         }
     });
-    BrushEditorDialog dialog(m_parentWindow);
-    dialog.exec();
+    QAction* fillImageAction  = fillColorMenu->addAction("填充效果");
+    connect(fillImageAction, &QAction::triggered, this, &GraphToolBarBuilder::onFillEffectTriggered);
+
     QAction* pickColorAction = fillColorMenu->addAction("取色");
     QColor colors2[1][8] = {
         {Qt::white,Qt::white,Qt::white,Qt::white,Qt::white,Qt::white,Qt::white,Qt::white,}
@@ -335,4 +331,37 @@ void GraphToolBarBuilder::onPickColorTriggered()
     QApplication::setOverrideCursor(Qt::CrossCursor);
     qApp->installEventFilter(this);
 
+}
+
+
+// 在 graphtoolbarbuilder.cpp 文件末尾添加
+void GraphToolBarBuilder::onFillEffectTriggered()
+{
+    FillEffectDialog dialog(m_parentWindow);
+    if (dialog.exec() == QDialog::Accepted) {
+        QString imagePath = dialog.getSelectedImagePath();
+        int drawMode = dialog.getDrawMode();
+
+        if (imagePath.isEmpty()) {
+            qDebug() << "未选择图片，操作取消。";
+            return;
+        }
+
+        qDebug() << "用户点击了'确定'";
+        qDebug() << "选择的图片路径是: " << imagePath;
+
+        QString modeStr;
+        switch(drawMode) {
+        case 0: modeStr = "居中等比拉伸"; break;
+        case 1: modeStr = "无拉伸"; break;
+        case 2: modeStr = "拉伸以填满"; break;
+        default: modeStr = "未知"; break;
+        }
+        qDebug() << "选择的绘制模式是: " << modeStr;
+
+        // TODO: 在这里可以发射一个信号，将图片路径和绘制模式传递给主窗口
+        // 例如: emit fillEffectChanged(imagePath, drawMode);
+    } else {
+        qDebug() << "用户点击了'取消'或关闭了对话框";
+    }
 }

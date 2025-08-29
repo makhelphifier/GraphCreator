@@ -35,6 +35,8 @@ public slots:
     void onEclipseTriggered();
     void onArcTriggered();
     void onPolygonTriggered();
+    void onFillEffectTriggered();
+
 
 private slots:
     void onPickColorTriggered();

@@ -43,19 +43,24 @@ void BrushEditorDialog::setupUi()
 
 
     // 调用函数创建“颜色1”区域并添加到布局中
-    colorsLayout->addWidget(createColor1Group());
+    m_color1Group = createColor1Group();
+    colorsLayout->addWidget(m_color1Group);
 
     // 调用函数创建“颜色2”区域并添加到布局中
-    colorsLayout->addWidget(createColor2Group());
+    m_color2Group = createColor2Group();
+    colorsLayout->addWidget(m_color2Group);
     // 将包含了两个颜色区域的水平布局添加到主布局
     mainLayout->addLayout(colorsLayout);
 
     QHBoxLayout *bottomLayout = new QHBoxLayout;
-    bottomLayout->addWidget(createGradientGroup());
-    bottomLayout->addWidget(createRadialGroup());
+    m_gradientGroup = createGradientGroup();
+    m_radialGroup = createRadialGroup();
+    bottomLayout->addWidget(m_gradientGroup);
+    bottomLayout->addWidget(m_radialGroup);
     mainLayout->addLayout(bottomLayout);
 
-    //  结果色预览区域 ---
+
+    //  结果色预览区域
     mainLayout->addWidget(createPreviewGroup());
 
     // --- 5. OK/Cancel 按钮 ---
@@ -86,7 +91,7 @@ void BrushEditorDialog::setupUi()
 
 
     // 弹簧移到最后，保证按钮总是贴着底边
-    // mainLayout->addStretch(); // 如果想让预览区和按钮之间有空白，可以保留它
+    // mainLayout->addStretch();
 }
 
 
@@ -124,7 +129,6 @@ QGroupBox* BrushEditorDialog::createRadialGroup()
 
     QHBoxLayout *previewLayout = new QHBoxLayout;
     QSize previewSize(55, 28);
-    const QStringList presetLabels = {"中心", "水平", "垂直"};
 
     for (int i = 0; i < 3; ++i) {
         QPushButton *presetButton = new QPushButton();
@@ -628,14 +632,30 @@ QGroupBox* BrushEditorDialog::createColor2Group()
 
 void BrushEditorDialog::onModeChanged()
 {
-    // // 根据哪个单选按钮被选中，来切换QStackedWidget显示的页面
-    // if (m_solidRadio->isChecked()) {
-    //     m_stackedWidget->setCurrentWidget(m_solidPage);
-    // } else if (m_linearGradientRadio->isChecked()) {
-    //     m_stackedWidget->setCurrentWidget(m_linearGradientPage);
-    // } else if (m_radialGradientRadio->isChecked()) {
-    //     m_stackedWidget->setCurrentWidget(m_radialGradientPage);
-    // }
+    // 根据哪个单选按钮被选中，来切换各个GroupBox的可用状态
+    if (m_solidRadio->isChecked()) {
+        // 单色模式：只启用颜色1
+        m_color1Group->setEnabled(true);
+        m_color2Group->setEnabled(false);
+        m_gradientGroup->setEnabled(false);
+        m_radialGroup->setEnabled(false);
+
+    } else if (m_linearGradientRadio->isChecked()) {
+        // 渐变模式：启用颜色1, 颜色2, 渐变Box
+        m_color1Group->setEnabled(true);
+        m_color2Group->setEnabled(true);
+        m_gradientGroup->setEnabled(true);
+        m_radialGroup->setEnabled(false);
+
+    } else if (m_radialGradientRadio->isChecked()) {
+        // 放射模式：启用颜色1, 颜色2, 放射Box
+        m_color1Group->setEnabled(true);
+        m_color2Group->setEnabled(true);
+        m_gradientGroup->setEnabled(false);
+        m_radialGroup->setEnabled(true);
+    }
+
+    // 无论模式如何变化，最后都要更新预览
     updatePreview();
 }
 
@@ -715,7 +735,6 @@ void BrushEditorDialog::updatePreview()
 
     } else if (m_radialGradientRadio->isChecked()) {
         // --- 3. 放射渐变模式---
-
         // 获取当前选中的预设按钮ID
         int checkedId = m_radialPresetGroup->checkedId();
 
@@ -762,7 +781,6 @@ void BrushEditorDialog::updatePreview()
         }
     }
 
-    // --- 统一使用 m_brush 绘制预览 ---
     QImage img(378, 123, QImage::Format_ARGB32_Premultiplied);
     img.fill(Qt::transparent); // 先填充透明背景
     QPainter p(&img);
@@ -770,8 +788,5 @@ void BrushEditorDialog::updatePreview()
     p.end();
 
     QPixmap pix = QPixmap::fromImage(img);
-    // m_previewButton->setIcon(QIcon(pix));
-    // m_previewButton->/*setIconSize*/(m_previewButton->size());
-    // 如果您采纳了之前的建议换成了QLabel，请使用下面这行代码
-    qobject_cast<QLabel*>(m_previewButton)->setPixmap(pix);
+    m_previewButton->setPixmap(pix);
 }
