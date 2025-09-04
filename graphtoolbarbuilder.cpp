@@ -94,8 +94,10 @@ void GraphToolBarBuilder::createMenus()
     m_toolBar->addSeparator();
     createFillColorMenu();
     createPenMenu();
+    createPenStyleMenu();
 
 }
+
 void GraphToolBarBuilder::createFillColorMenu()
 {
     QMenu* fillColorMenu = new QMenu(m_parentWindow);
@@ -192,6 +194,53 @@ void GraphToolBarBuilder::createFillColorMenu()
     QAction* penAction = new QAction("填充颜色",m_parentWindow);
     penAction->setMenu(fillColorMenu);
     m_toolBar->addAction(penAction);
+}
+#include <QPainter>
+void GraphToolBarBuilder::createPenStyleMenu()
+{
+    QMenu* penSizeMenu = new QMenu(m_parentWindow);
+    QAction* penSizeAction = new QAction("线型",m_parentWindow);
+    penSizeAction->setMenu(penSizeMenu);
+
+    QPixmap mainIconPixmap(24,24);
+    mainIconPixmap.fill(Qt::transparent);
+    QPainter iconPainter(&mainIconPixmap);
+    iconPainter.setPen(Qt::black);
+    iconPainter.drawLine(3,7,21,7);
+    iconPainter.drawLine(3,12,21,12);
+    iconPainter.drawLine(3,17,21,17);
+    penSizeAction->setIcon(QIcon(mainIconPixmap));
+
+    const QList<int> pointSizes ={1,2,3,4,5};
+    for(int size: pointSizes){
+        QPixmap pixmap(120,25);
+        pixmap.fill(Qt::transparent);
+
+        //绘制文字
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);//抗锯齿
+        painter.setPen(Qt::black);
+        QString text =QString("%1pt").arg(size);
+        painter.drawText(QRectF(5,0,35,pixmap.height()),Qt::AlignCenter,text);
+        //绘制线条
+        QPen linePen(Qt::black);
+        linePen.setWidth(size);
+        painter.setPen(linePen);
+
+        int y_center = pixmap.height()/2;
+        painter.drawLine(QPoint(45,y_center),QPoint(pixmap.width()-10,y_center));
+
+        QAction* sizeAction = new QAction(QIcon(pixmap),"",penSizeMenu);
+        penSizeMenu->addAction(sizeAction);
+
+        connect(sizeAction,&QAction::triggered,[=](){
+            qDebug()<<"selected pen size : "<<size <<"pt";
+
+        });
+
+    }
+    m_toolBar->addAction(penSizeAction);
+
 }
 
 void GraphToolBarBuilder::createPenMenu()

@@ -22,8 +22,9 @@ private:
     QToolBar* m_toolBar;
     void createMenus();
     void createPenMenu();
-
     void createFillColorMenu();
+    void createPenStyleMenu();
+
     bool m_isPickingColor;
     QList<QPushButton* > m_customColorButtons;
     int m_customColorIndex;
