@@ -7,7 +7,9 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPrintPreviewDialog>
-#include <QPainter> // 打印时通常也需要 QPainter
+#include <QPainter>
+#include <QSvgGenerator>
+
 
 GraphMenuBuilder::GraphMenuBuilder() {}
 
@@ -31,7 +33,7 @@ void GraphMenuBuilder::createMenus()
     QMenu* fileMenu = m_menuBar->addMenu("文件(&F)");
     fileMenu->addAction("新建",QKeySequence(Qt::CTRL|Qt::Key_N),this,&GraphMenuBuilder::onNewGraphTriggered);
     fileMenu->addAction("打开",QKeySequence(Qt::CTRL|Qt::Key_O),this,&GraphMenuBuilder::onOpenGraphTriggered);
-    fileMenu->addAction("保存",QKeySequence(Qt::CTRL|Qt::Key_S),this,&GraphMenuBuilder::onOpenGraphTriggered);//todo
+    fileMenu->addAction("保存",QKeySequence(Qt::CTRL|Qt::Key_S),this,&GraphMenuBuilder::onSaveGraphTriggered);
     fileMenu->addAction("导出...",QKeySequence(Qt::CTRL|Qt::Key_E),this,&GraphMenuBuilder::onExportGraphTriggered);
     fileMenu->addAction("导入...",QKeySequence(Qt::CTRL|Qt::Key_I),this,&GraphMenuBuilder::onImportGraphTriggered);
     fileMenu->addSeparator();
@@ -154,8 +156,19 @@ void GraphMenuBuilder::createGraphActions()
 void GraphMenuBuilder::onNewGraphTriggered(bool checked ){
     qDebug()<<"onNewGraphTriggered ";
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"NEW");
+    connect(m_newGraphWidget, &NewGraphWidget::graphCreated, this, &GraphMenuBuilder::onGraphFileCreated);
     m_newGraphWidget->show();
 }
+
+
+void GraphMenuBuilder::onGraphFileCreated(const QString &filePath)
+{
+    MainWindow* mainWindow = qobject_cast<MainWindow*>(m_parentWindow);
+    if (mainWindow) {
+        mainWindow->setCurrentFile(filePath);
+    }
+}
+
 
 void GraphMenuBuilder::onOpenGraphTriggered(bool checked ){
     qDebug()<<"onOpenGraphTriggered ";
@@ -173,4 +186,51 @@ void GraphMenuBuilder::onManagerGraphTriggered(bool checked ){
     qDebug()<<"onManagerGraphTriggered ";
     m_newGraphWidget = new NewGraphWidget(m_parentWindow,"MANAGER");
     m_newGraphWidget->show();
+}
+
+void GraphMenuBuilder::onSaveGraphTriggered(bool checked)
+{
+    Q_UNUSED(checked);
+
+    MainWindow* mainWindow = qobject_cast<MainWindow*>(m_parentWindow);
+    if (!mainWindow) {
+        qDebug() << "错误: 父窗口不是 MainWindow!";
+        return;
+    }
+
+    // 获取当前文件路径
+    QString currentPath = mainWindow->property("m_currentFilePath").toString();
+
+    // 如果当前路径为空, 则行为和“另存为”一样
+    if (currentPath.isEmpty()) {
+        currentPath = QFileDialog::getSaveFileName(
+            m_parentWindow,
+            "另存为 SVG 文件",
+            "",
+            "Scalable Vector Graphics (*.svg)");
+
+        if (currentPath.isEmpty()) {
+            qDebug() << "保存操作已取消";
+            return;
+        }
+        // 更新 MainWindow 中的当前路径
+        mainWindow->setCurrentFile(currentPath);
+    }
+
+    // --- 后续的保存逻辑和之前一样 ---
+    QSvgGenerator generator;
+    generator.setFileName(currentPath);
+
+    QRectF sceneRect = mainWindow->scene()->sceneRect();
+    generator.setSize(QSize(sceneRect.width(), sceneRect.height()));
+    generator.setViewBox(sceneRect);
+    generator.setTitle("我的绘图");
+    generator.setDescription("使用 GraphCreator 创建的 SVG 文件");
+
+    QPainter painter;
+    painter.begin(&generator);
+    mainWindow->scene()->render(&painter);
+    painter.end();
+
+    qDebug() << "场景已成功保存到:" << currentPath;
 }

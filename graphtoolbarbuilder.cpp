@@ -11,6 +11,12 @@
 #include <QApplication>
 #include "brusheditordialog.h"
 #include "filleffectdialog.h"
+#include <QPainter>
+#include "pen_size_widget.h"
+#include "pen_style_widget.h"
+#include "penarrowwidget.h"
+#include <QWidgetAction>
+
 
 GraphToolBarBuilder::GraphToolBarBuilder(QMainWindow *parent)
 
@@ -94,8 +100,9 @@ void GraphToolBarBuilder::createMenus()
     m_toolBar->addSeparator();
     createFillColorMenu();
     createPenMenu();
+    createPenSizeMenu();
     createPenStyleMenu();
-
+    createPenArrowMenu();
 }
 
 void GraphToolBarBuilder::createFillColorMenu()
@@ -195,53 +202,167 @@ void GraphToolBarBuilder::createFillColorMenu()
     penAction->setMenu(fillColorMenu);
     m_toolBar->addAction(penAction);
 }
-#include <QPainter>
-void GraphToolBarBuilder::createPenStyleMenu()
+
+
+void GraphToolBarBuilder::createPenSizeMenu()
 {
     QMenu* penSizeMenu = new QMenu(m_parentWindow);
-    QAction* penSizeAction = new QAction("线型",m_parentWindow);
+    QAction* penSizeAction = new QAction("线宽",m_parentWindow);
     penSizeAction->setMenu(penSizeMenu);
 
     QPixmap mainIconPixmap(24,24);
     mainIconPixmap.fill(Qt::transparent);
     QPainter iconPainter(&mainIconPixmap);
-    iconPainter.setPen(Qt::black);
+    QPen pen(Qt::black);
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setWidth(1);
+    iconPainter.setPen(pen);
     iconPainter.drawLine(3,7,21,7);
+    pen.setWidth(2);
+    iconPainter.setPen(pen);
     iconPainter.drawLine(3,12,21,12);
+    pen.setWidth(3);
+    iconPainter.setPen(pen);
     iconPainter.drawLine(3,17,21,17);
     penSizeAction->setIcon(QIcon(mainIconPixmap));
+    const QList<int> pointSizes = {1,2,3,4,5};
+    for (int size : pointSizes) {
+        QWidgetAction* wa = new QWidgetAction(penSizeMenu);
+        PenSizeWidget* w = new PenSizeWidget(size);
+        wa->setDefaultWidget(w);
+        penSizeMenu->addAction(wa);
 
-    const QList<int> pointSizes ={1,2,3,4,5};
-    for(int size: pointSizes){
-        QPixmap pixmap(120,25);
-        pixmap.fill(Qt::transparent);
-
-        //绘制文字
-        QPainter painter(&pixmap);
-        painter.setRenderHint(QPainter::Antialiasing);//抗锯齿
-        painter.setPen(Qt::black);
-        QString text =QString("%1pt").arg(size);
-        painter.drawText(QRectF(5,0,35,pixmap.height()),Qt::AlignCenter,text);
-        //绘制线条
-        QPen linePen(Qt::black);
-        linePen.setWidth(size);
-        painter.setPen(linePen);
-
-        int y_center = pixmap.height()/2;
-        painter.drawLine(QPoint(45,y_center),QPoint(pixmap.width()-10,y_center));
-
-        QAction* sizeAction = new QAction(QIcon(pixmap),"",penSizeMenu);
-        penSizeMenu->addAction(sizeAction);
-
-        connect(sizeAction,&QAction::triggered,[=](){
-            qDebug()<<"selected pen size : "<<size <<"pt";
-
+        connect(w, &PenSizeWidget::activated, [=](int s){
+            qDebug() << "selected pen size :" << s << "pt";
+            // 在这里把笔宽应用到你的工具/变量上
+            penSizeMenu->hide(); // 选完后关闭菜单（可选）
         });
-
     }
+
     m_toolBar->addAction(penSizeAction);
 
 }
+
+void GraphToolBarBuilder::createPenStyleMenu()
+{
+    QMenu* penStyleMenu = new QMenu(m_parentWindow);
+    QAction* penStyleAction = new QAction("线型",m_parentWindow);
+    penStyleAction->setMenu(penStyleMenu);
+
+    QPixmap mainIconPixmap(24,24);
+    mainIconPixmap.fill(Qt::transparent);
+    QPainter iconPainter(&mainIconPixmap);
+    QPen pen(Qt::black);
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setStyle(Qt::SolidLine);
+    iconPainter.setPen(pen);
+    iconPainter.drawLine(3,7,21,7);
+    pen.setStyle(Qt::DotLine);
+    iconPainter.setPen(pen);
+    iconPainter.drawLine(3,12,21,12);
+    pen.setStyle(Qt::DashDotLine);
+    iconPainter.setPen(pen);
+    iconPainter.drawLine(3,17,21,17);
+    penStyleAction->setIcon(QIcon(mainIconPixmap));
+    // 菜单里添加各种线型
+    QList<Qt::PenStyle> styles = {
+        Qt::SolidLine,
+        Qt::DashLine,
+        Qt::DotLine,
+        Qt::DashDotLine,
+        Qt::DashDotDotLine
+    };
+
+    for (Qt::PenStyle style : styles) {
+        QWidgetAction* wa = new QWidgetAction(penStyleMenu);
+        PenStyleWidget* w = new PenStyleWidget(style);
+        wa->setDefaultWidget(w);
+        penStyleMenu->addAction(wa);
+
+        connect(w, &PenStyleWidget::activated, [=](Qt::PenStyle s){
+            qDebug() << "selected pen style :" << s;
+            // TODO: 应用到画笔
+            penStyleMenu->hide();
+        });
+    }
+
+    m_toolBar->addAction(penStyleAction);
+
+}
+
+// 确保 M_PI 定义存在
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+void GraphToolBarBuilder::createPenArrowMenu()
+{
+    QMenu* penArrowMenu = new QMenu(m_parentWindow);
+    QAction* penArrowAction = new QAction("箭头样式", m_parentWindow);
+    penArrowAction->setMenu(penArrowMenu);
+
+    // 为工具栏按钮创建一个图标
+    QPixmap mainIconPixmap(24, 24);
+    mainIconPixmap.fill(Qt::transparent);
+    QPainter iconPainter(&mainIconPixmap);
+    iconPainter.setRenderHint(QPainter::Antialiasing);
+    QPen iconPen(Qt::black, 2);
+    iconPen.setCapStyle(Qt::FlatCap);
+    iconPainter.setPen(iconPen);
+    iconPainter.setBrush(Qt::black);
+
+    // --- 错误修正部分 ---
+    // 直接在这里绘制图标，不再调用外部的 drawArrow 函数
+    QPointF start(4, 12);
+    QPointF end(20, 12);
+    iconPainter.drawLine(start, end); // 绘制中间的线
+
+    double arrowSize = 6.0;
+    // 绘制右箭头
+    double angleRight = std::atan2(end.y() - start.y(), end.x() - start.x());
+    QPointF p1_right = end - QPointF(arrowSize * std::cos(angleRight - M_PI / 6), arrowSize * std::sin(angleRight - M_PI / 6));
+    QPointF p2_right = end - QPointF(arrowSize * std::cos(angleRight + M_PI / 6), arrowSize * std::sin(angleRight + M_PI / 6));
+    iconPainter.drawPolygon(QPolygonF() << end << p1_right << p2_right);
+
+    // 绘制左箭头
+    double angleLeft = std::atan2(start.y() - end.y(), start.x() - end.x());
+    QPointF p1_left = start - QPointF(arrowSize * std::cos(angleLeft - M_PI / 6), arrowSize * std::sin(angleLeft - M_PI / 6));
+    QPointF p2_left = start - QPointF(arrowSize * std::cos(angleLeft + M_PI / 6), arrowSize * std::sin(angleLeft + M_PI / 6));
+    iconPainter.drawPolygon(QPolygonF() << start << p1_left << p2_left);
+    // --- 修正结束 ---
+
+    penArrowAction->setIcon(QIcon(mainIconPixmap));
+
+    // 定义所有需要创建的样式
+    QList<ArrowStyle> styles = {
+        ArrowStyle::NoArrow,
+        ArrowStyle::RightArrow,
+        ArrowStyle::LeftArrow,
+        ArrowStyle::BothArrowsOut,
+        ArrowStyle::RightArrowIn,
+        ArrowStyle::LeftArrowIn,
+        ArrowStyle::BothArrowsIn
+    };
+
+    // 循环创建每个菜单项
+    for (ArrowStyle style : styles) {
+        QWidgetAction* wa = new QWidgetAction(penArrowMenu);
+        PenArrowWidget* w = new PenArrowWidget(style);
+        wa->setDefaultWidget(w);
+        penArrowMenu->addAction(wa);
+
+        // 连接自定义控件的 activated 信号
+        connect(w, &PenArrowWidget::activated, [=](ArrowStyle s){
+            qDebug() << "selected arrow style :" << static_cast<int>(s);
+            // 发射信号，通知其他部分箭头样式已更改
+            // emit penArrowStyleChanged(s);
+            penArrowMenu->hide(); // 选择后关闭菜单
+        });
+    }
+
+    m_toolBar->addAction(penArrowAction);
+}
+
+
 
 void GraphToolBarBuilder::createPenMenu()
 {

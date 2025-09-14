@@ -321,6 +321,8 @@ void NewGraphWidget::on_newButton_clicked(){
         file.close();
         qDebug()<<filePath<<"文件已经成功创建";
         // writeFileIntoScene(filePath);
+        emit graphCreated(filePath);
+
         this->close();
     }
 

@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QWheelEvent>
 #include <QPainterPath>
+#include <QFileInfo>
 
 #include <QGraphicsRectItem>
 #include "enhancedtextitem.h"
@@ -430,4 +431,22 @@ void MainWindow::removeLastPointFromPath(QPainterPath &path)
         }
     }
     path = newPath;
+}
+void MainWindow::setCurrentFile(const QString &filePath)
+{
+    m_scene->clear(); // 清空场景，为新绘图做准备
+    m_currentFilePath = filePath;
+
+    if (filePath.isEmpty()) {
+        setWindowTitle("绘图工具 - [未命名]");
+    } else {
+        // 从完整路径中提取文件名，并设置到窗口标题
+        setWindowTitle(QString("绘图工具 - %1").arg(QFileInfo(filePath).fileName()));
+    }
+}
+
+
+QGraphicsScene* MainWindow::scene() const
+{
+    return m_scene;
 }

@@ -8,6 +8,7 @@
 #include <QGraphicsScene>
 #include "pagesetupdialog.h"
 #include "previewconfigurationdialog.h"
+#include "mainwindow.h"
 
 class GraphMenuBuilder :public QObject {
     Q_OBJECT
@@ -55,6 +56,8 @@ public slots:
     void on_actionArrangeIcons_triggered();
     void on_actionAbout_triggered();
     void on_actionChangelog_triggered();
+    void onSaveGraphTriggered(bool checked = false);
+
 private:
     QMainWindow* m_parentWindow;
     QMenuBar* m_menuBar;
@@ -64,6 +67,10 @@ private:
     NewGraphWidget* m_newGraphWidget;
     PageSetupDialog* m_pageSetupDialog;
     PreviewConfigurationDialog* m_previewConfigurationDialog;
+
+private slots:
+    void onGraphFileCreated(const QString &filePath);
+
 };
 
 #endif // GRAPHMENUBUILDER_H

@@ -39,6 +39,7 @@ private:
     QString getTreeFullPath(QTreeWidgetItem *item);
 
 signals:
+    void graphCreated(const QString &filePath);
 
 
 private slots:

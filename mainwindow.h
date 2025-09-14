@@ -32,6 +32,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     QGraphicsScene* m_scene ;
+    QGraphicsScene* scene() const;
 protected:
     bool eventFilter(QObject* watched,QEvent* event) override;
     void wheelEvent(QWheelEvent *event) override;
@@ -44,6 +45,8 @@ public slots:
     void enterEllipseDrawingMode();
     void enterArcDrawingMode();
     void enterPolygonDrawingMode();
+    void setCurrentFile(const QString &filePath);
+
 private:
     QGraphicsView* m_view ;
     DrawingMode m_currentMode = NoMode;
@@ -59,6 +62,7 @@ private:
     EnhancedEllipseItem* m_currentEllipseItem = nullptr;
     EnhancedArcItem* m_currentArcItem = nullptr;
     EnhancedPolygonItem* m_currentPolygonItem = nullptr;
+    QString m_currentFilePath;
     void removeLastPointFromPath(QPainterPath &path);
 };
 #endif // MAINWINDOW_H
