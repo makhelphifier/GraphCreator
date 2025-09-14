@@ -441,7 +441,7 @@ void MainWindow::setCurrentFile(const QString &filePath)
         setWindowTitle("绘图工具 - [未命名]");
     } else {
         // 从完整路径中提取文件名，并设置到窗口标题
-        setWindowTitle(QString("绘图工具 - %1").arg(QFileInfo(filePath).fileName()));
+        setWindowTitle(QString("绘图工具 - %1").arg(QFileInfo(filePath).baseName()));
     }
 }
 

@@ -166,8 +166,10 @@ void NewGraphWidget::on_renameButton_clicked(){
     QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
     QString treePath = getTreeFullPath(selectedItem);
     QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
+    // 新文件名
     QString  targetPath = finalDirPath+( QDir::separator())+(targetFileName)+(".xml");
-    QString  sourcePath = finalDirPath+( QDir::separator())+(graphList->currentItem()->text());
+    // 旧文件名，从列表中获取并添加.xml后缀
+    QString  sourcePath = finalDirPath+( QDir::separator())+(graphList->currentItem()->text()) + ".xml";
 
     QFile::remove(targetPath);
     QFile::copy(sourcePath, targetPath);
@@ -192,7 +194,7 @@ void NewGraphWidget::on_removeButton_clicked(){
     QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
     QString treePath = getTreeFullPath(selectedItem);
     QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
-    QString  sourcePath = finalDirPath.append( QDir::separator()).append(graphList->currentItem()->text());
+    QString  sourcePath = finalDirPath.append( QDir::separator()).append(graphList->currentItem()->text()).append(".xml");
 
     QFile::remove(sourcePath);
     update();
@@ -242,7 +244,7 @@ void NewGraphWidget::on_openButton_clicked()
     QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
     QString treePath = getTreeFullPath(selectedItem);
     QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
-    QString filePath = finalDirPath.append( QDir::separator()).append( graphList->currentItem()->text());
+    QString filePath = finalDirPath.append( QDir::separator()).append( graphList->currentItem()->text()).append(".xml");
 
     // writeFileIntoScene(filePath);
     qDebug()<<"打开文件"+filePath;
@@ -276,7 +278,7 @@ void NewGraphWidget::on_graphTree_clicked(){
     qDebug()<<"fileList";
     for(const QString &fileName:fileList){
         qDebug()<<fileName;
-        graphList->addItem(fileName);
+        graphList->addItem(QFileInfo(fileName).baseName());
     }
     update();
 
