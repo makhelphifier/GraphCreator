@@ -19,7 +19,8 @@ public:
 
     QMenuBar* buildMenuBar();
     
-
+signals:
+    void openGraph(const QString &filePath);
 public slots:
     void onNewGraphTriggered(bool checked = false);
     void onOpenGraphTriggered(bool checked);

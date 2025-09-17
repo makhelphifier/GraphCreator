@@ -23,21 +23,10 @@ int main(int argc, char *argv[])
     w.setFixedSize(1200,800);
 
     GraphMenuBuilder menuBuilder(&w);
+    QObject::connect(&menuBuilder, &GraphMenuBuilder::openGraph, &w, &MainWindow::loadGraphFromFile);
 
     w.setMenuBar(menuBuilder.buildMenuBar());
 
     w.show();
-
-    // menuBuilder.onNewGraphTriggered(true);
-
-    // menuBuilder.onOpenGraphTriggered(true);
-    // menuBuilder.onImportGraphTriggered(true);
-    // menuBuilder.onManagerGraphTriggered(true);
-    // menuBuilder.onPageSetupGraphTriggered();
-
-    // menuBuilder.on_actionConfigurePreview_triggered();
-
-    NewGraphWidget::writeFileIntoScene("sss",w.m_scene);
-
     return a.exec();
 }

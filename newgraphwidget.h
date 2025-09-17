@@ -40,7 +40,7 @@ private:
 
 signals:
     void graphCreated(const QString &filePath);
-
+    void fileOpened(const QString &filePath);
 
 private slots:
     void on_newButton_clicked();

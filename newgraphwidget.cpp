@@ -150,38 +150,51 @@ void NewGraphWidget::writeSceneIntoFile(QString &filePath)
 }
 
 void NewGraphWidget::on_renameButton_clicked(){
-    QString targetFileName = lineEdit->text();
+    QString targetFileName = lineEdit->text().trimmed();
     if(targetFileName.isEmpty()){
+        QMessageBox::warning(this, "提示", "请输入新的图名称。");
         return;
     }
-    QTreeWidgetItem* selectedItem = graphTree->currentItem();
-    if(!selectedItem){
-        qDebug()<<"未选中";
+
+    if(!graphTree->currentItem() || !graphList->currentItem()){
+        QMessageBox::warning(this, "提示", "请在列表中选择要重命名的图。");
         return;
     }
-    if(!graphList->currentItem()){
-        return ;
-    }
+
     QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
-    QString treePath = getTreeFullPath(selectedItem);
-    QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
-    // 新文件名
-    QString  targetPath = finalDirPath+( QDir::separator())+(targetFileName)+(".xml");
-    // 旧文件名，从列表中获取并添加.xml后缀
-    QString  sourcePath = finalDirPath+( QDir::separator())+(graphList->currentItem()->text()) + ".xml";
+    QString treePath = getTreeFullPath(graphTree->currentItem());
+    QDir finalDir(defaultSavePath + QDir::separator() + treePath);
 
-    QFile::remove(targetPath);
-    QFile::copy(sourcePath, targetPath);
-    QFile::remove(sourcePath);
-    update();
-    on_graphTree_clicked();
+    QString oldName = graphList->currentItem()->text();
+    if (targetFileName == oldName) {
+        return; // 如果新旧名称相同，则无需操作
+    }
+
+    QString sourcePath = finalDir.filePath(oldName + ".xml");
+    QString targetPath = finalDir.filePath(targetFileName + ".xml");
+
+    // 关键步骤：在重命名之前，检查目标文件是否已存在
+    if (QFile::exists(targetPath)) {
+        // 如果目标文件存在，先尝试删除它
+        if (!QFile::remove(targetPath)) {
+            QMessageBox::critical(this, "错误", "重命名失败！\n无法删除已存在的同名文件，请检查文件权限。");
+            return;
+        }
+    }
+
+    // 现在，可以安全地执行重命名操作了
+    if (QFile::rename(sourcePath, targetPath)) {
+        // 成功后，清空输入框并刷新列表
+        lineEdit->clear();
+        on_graphTree_clicked();
+    } else {
+        // 如果此时仍然失败，则可能是其他问题
+        QMessageBox::critical(this, "错误", "重命名失败！\n可能原因：文件名中包含非法字符，或源文件已被锁定。");
+    }
 }
 void NewGraphWidget::on_removeButton_clicked(){
-    QString targetFileName = lineEdit->text();
-    if(targetFileName.isEmpty()){
-        return;
-    }
+
     QTreeWidgetItem* selectedItem = graphTree->currentItem();
     if(!selectedItem){
         qDebug()<<"未选中";
@@ -248,15 +261,15 @@ void NewGraphWidget::on_openButton_clicked()
 
     // writeFileIntoScene(filePath);
     qDebug()<<"打开文件"+filePath;
+    emit fileOpened(filePath);
+
     this->close();
 }
 
 
 void NewGraphWidget::on_graphTree_clicked(){
-    qDebug()<<"on_graphTree_clicked";
     graphList->clear();
     update();
-
     QTreeWidgetItem* selectedItem = graphTree->currentItem();
     if(!selectedItem){
         qDebug()<<"未选中";
@@ -270,22 +283,16 @@ void NewGraphWidget::on_graphTree_clicked(){
     QDir dir(finalDirPath) ;
     if(!dir.exists()){
         qDebug()<<"路径不存在";
-
         return;
     }
-
-    QStringList fileList = dir.entryList(QDir::Files|QDir::NoDotAndDotDot);
-    qDebug()<<"fileList";
+    QStringList nameFilter("*.xml");
+    QStringList fileList = dir.entryList(nameFilter, QDir::Files | QDir::NoDotAndDotDot);
     for(const QString &fileName:fileList){
         qDebug()<<fileName;
         graphList->addItem(QFileInfo(fileName).baseName());
     }
     update();
-
 }
-
-
-
 
 void NewGraphWidget::on_newButton_clicked(){
 
@@ -294,29 +301,23 @@ void NewGraphWidget::on_newButton_clicked(){
         QMessageBox::warning(this,"警告","图名称不能为空，请输入");
         return;
     }
-
     QTreeWidgetItem* selectedItem = graphTree->currentItem();
     if(!selectedItem){
         QMessageBox::warning(this,"警告","请在左侧树状图选择");
     }
-
     QString documentPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QString defaultSavePath = QDir(documentPath).filePath("GraphCreator");
     QString treePath = getTreeFullPath(selectedItem);
     QString finalDirPath = defaultSavePath.append(QDir::separator()).append(treePath);
-
     QDir dir;
     if(!dir.mkpath(finalDirPath)){
         QMessageBox::critical(this,"错误","无法创建目录"+defaultSavePath.append(QDir::separator()).append(treePath)+"\n请检查程序权限或目标路径是否有效。");
     }
-
-
     QString filePath = finalDirPath.append(QDir::separator()).append(graphName).append(".xml");
     filePath = QDir::cleanPath(filePath);
     QFile file(filePath);
 
     if(file.open(QIODevice::WriteOnly)|QIODevice::Text){
-
         QTextStream out(&file);
         out<<"";
         out.flush();
@@ -324,13 +325,9 @@ void NewGraphWidget::on_newButton_clicked(){
         qDebug()<<filePath<<"文件已经成功创建";
         // writeFileIntoScene(filePath);
         emit graphCreated(filePath);
-
         this->close();
     }
-
-
 }
-
 
 void NewGraphWidget::initTreeWidget()
 {
@@ -403,17 +400,13 @@ void NewGraphWidget::initTreeWidget()
 }
 
 QString NewGraphWidget::getTreeFullPath(QTreeWidgetItem* item){
-
     QStringList pathList;
-
     while(item){
         pathList.prepend(item->text(0));
         item = item->parent();
     }
     return pathList.join(QDir::separator());
 }
-
-
 
 void NewGraphWidget::writeFileIntoScene(const QString &filePath,QGraphicsScene* scene)
 {

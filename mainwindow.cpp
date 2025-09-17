@@ -450,3 +450,55 @@ QGraphicsScene* MainWindow::scene() const
 {
     return m_scene;
 }
+
+QString MainWindow::currentFilePath() const
+{
+    return m_currentFilePath;
+}
+
+#include <QMessageBox>
+#include <QXmlStreamReader>
+
+void MainWindow::loadGraphFromFile(const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "错误", "无法打开文件: " + filePath);
+        return;
+    }
+
+    m_scene->clear(); // 清空当前场景
+    QXmlStreamReader xmlReader(&file);
+
+    while (!xmlReader.atEnd() && !xmlReader.hasError()) {
+        QXmlStreamReader::TokenType token = xmlReader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (xmlReader.name().toString() == "item") {
+                QString type = xmlReader.attributes().value("type").toString();
+                if (type == "line") {
+                    EnhancedLineItem* item = new EnhancedLineItem();
+                    QPointF p1(xmlReader.attributes().value("x1").toDouble(), xmlReader.attributes().value("y1").toDouble());
+                    QPointF p2(xmlReader.attributes().value("x2").toDouble(), xmlReader.attributes().value("y2").toDouble());
+                    item->setLine(QLineF(p1, p2));
+                    m_scene->addItem(item);
+                } else if (type == "rectangle") {
+                    EnhancedRectangleItem* item = new EnhancedRectangleItem();
+                    QRectF rect(xmlReader.attributes().value("x").toDouble(),
+                                xmlReader.attributes().value("y").toDouble(),
+                                xmlReader.attributes().value("width").toDouble(),
+                                xmlReader.attributes().value("height").toDouble());
+                    item->setRect(rect);
+                    m_scene->addItem(item);
+                }
+                // ... 在这里为其他图形类型添加 else if ...
+            }
+        }
+    }
+
+    if (xmlReader.hasError()) {
+        QMessageBox::critical(this, "解析错误", "解析XML文件时出错: " + xmlReader.errorString());
+    }
+
+    setCurrentFile(filePath); // 更新当前文件路径和窗口标题
+    file.close();
+}

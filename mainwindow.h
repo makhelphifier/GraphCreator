@@ -33,6 +33,8 @@ public:
     ~MainWindow();
     QGraphicsScene* m_scene ;
     QGraphicsScene* scene() const;
+    QString currentFilePath() const;
+
 protected:
     bool eventFilter(QObject* watched,QEvent* event) override;
     void wheelEvent(QWheelEvent *event) override;
@@ -46,6 +48,7 @@ public slots:
     void enterArcDrawingMode();
     void enterPolygonDrawingMode();
     void setCurrentFile(const QString &filePath);
+    void loadGraphFromFile(const QString &filePath);
 
 private:
     QGraphicsView* m_view ;

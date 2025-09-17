@@ -442,3 +442,12 @@ QPointF EnhancedArcItem::getHandlePos(HandlePosition handle) const
     default: return QPointF();
     }
 }
+QPointF EnhancedArcItem::startPoint() const
+{
+    return m_startPoint;
+}
+
+QPointF EnhancedArcItem::endPoint() const
+{
+    return m_endPoint;
+}
